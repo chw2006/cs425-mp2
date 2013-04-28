@@ -5,6 +5,7 @@
 
 using namespace mp2;
 using namespace std;
+using boost::shared_ptr;
 
 class ReplicaTest : public ::testing::Test {
 protected:
@@ -16,7 +17,7 @@ protected:
 	static const string sm2_initstate;
 	static const string sm2_op;
 
-	ReplicaTest() : empty_1(1, factory), oneSM_2(2, factory) {}
+	ReplicaTest() : empty_1(1, factory, shared_ptr<Replicas>()), oneSM_2(2, factory, shared_ptr<Replicas>()) {}
 
 	virtual void SetUp() {
 		oneSM_2.create(sm2_name, sm2_initstate);

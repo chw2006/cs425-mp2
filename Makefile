@@ -1,4 +1,4 @@
-GTEST_DIR=$(HOME)/src/gtest-1.6.0
+GTEST_DIR=/class/ece428/libs/gtest-1.6.0
 THRIFT_DIR=/class/ece428/libs
 THRIFT=$(THRIFT_DIR)/bin/thrift
 CFLAGS=-I./gen-cpp -g
@@ -9,15 +9,16 @@ TESTS:=$(patsubst %.cpp,%,$(wildcard *_unittest.cpp))
 RPCSOURCES = gen-cpp/replica_constants.cpp gen-cpp/replica_types.cpp gen-cpp/Replica.cpp
 RPCHEADERS := $(patsubst %.cpp,%.h,$(RPCSOURCES))
 RPCOBJS := $(patsubst %.cpp,%.o,$(RPCSOURCES))
+LDFLAGS=-L$(THRIFT_DIR)/lib -lpthread -lthrift -lboost_program_options-mt -lboost_filesystem-mt -lboost_system-mt
 
 .PHONY: all test clean
 all: replica client
 
 replica: replica_handler.o replica_main.o replicas.o $(RPCOBJS)
-	$(CXX) $(CXXFLAGS) -lpthread $^ -L$(THRIFT_DIR)/lib -lthrift -lboost_program_options-mt -o $@
+	$(CXX) $(CXXFLAGS)  $^ $(LDFLAGS) -o $@
 
 client: client.o frontend.o replicas.o $(RPCOBJS)
-	$(CXX) $(CXXFLAGS) -lpthread $^ -L$(THRIFT_DIR)/lib -lthrift -lboost_program_options-mt -o $@
+	$(CXX) $(CXXFLAGS)  $^ $(LDFLAGS) -o $@
 
 test: $(TESTS)
 	@for test in $(TESTS) ; do \
@@ -59,14 +60,14 @@ gtest_main.a : gtest-all.o gtest_main.o
 stringmachine_unittest: stringmachine_unittest.o gtest_main.a
 	$(CXX) $(CXXFLAGS) -lpthread $^ -o $@
 
-replicas_unittest: replicas_unittest.o replica_handler.o gtest_main.a
-	$(CXX) $(CXXFLAGS) -lpthread $^ -o $@
+replicas_unittest: replicas_unittest.o replica_handler.o replicas.o $(RPCOBJS) gtest_main.a
+	$(CXX) $(CXXFLAGS)  -lpthread $^ $(LDFLAGS) -o $@
 
 bankbalance_unittest: bankbalance_unittest.o gtest_main.a
 	$(CXX) $(CXXFLAGS) -lpthread $^ -o $@
 
 clean:
-	-rm -f *.o $(TESTS) replica client .pipes/*
+	-rm -f *.o gen-cpp/*.o $(TESTS) replica client .pipes/*
 
 .PHONY: depend
 depend: .depend

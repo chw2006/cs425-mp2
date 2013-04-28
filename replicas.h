@@ -15,15 +15,18 @@ private:
 	std::string pipedir;
 	unsigned int numreplicas;
 	std::vector<boost::shared_ptr<ReplicaClient> > replicas;
+	std::string pipe_path(unsigned int id) const;
+	bool threadPool;
 
 public:
-	std::string pipe_path(unsigned int id) const;
-
 	Replicas(int argc, char **argv, unsigned int * myid = NULL);
 
 	ReplicaIf & operator [](unsigned int);
 
 	unsigned int numReplicas() const { return numreplicas;}
+
+	// start a server with the given replica handler and id
+	void serve(boost::shared_ptr<ReplicaIf> replica, unsigned int id);
 };
 
 } // namespace

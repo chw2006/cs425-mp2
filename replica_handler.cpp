@@ -2,11 +2,13 @@
 
 using namespace mp2;
 using namespace std;
+using boost::shared_ptr;
 
 #include <cstdlib>
 #include <iostream>
 
-Replica::Replica(int myid, StateMachineFactory & factory) : factory(factory), id(myid) {
+Replica::Replica(int myid, StateMachineFactory & factory, shared_ptr<Replicas> replicas) 
+: factory(factory), id(myid), replicas(replicas) {
 	// any initialization you need goes here
 }
 
