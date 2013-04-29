@@ -19,6 +19,7 @@ class ReplicaIf {
   virtual void apply(std::string& _return, const std::string& name, const std::string& operation) = 0;
   virtual void getState(std::string& _return, const std::string& name) = 0;
   virtual void remove(const std::string& name) = 0;
+  virtual void numMachines(std::string& _return, const std::string& name) = 0;
   virtual void exit() = 0;
 };
 
@@ -59,6 +60,9 @@ class ReplicaNull : virtual public ReplicaIf {
     return;
   }
   void remove(const std::string& /* name */) {
+    return;
+  }
+  void numMachines(std::string& /* _return */, const std::string& /* name */) {
     return;
   }
   void exit() {
@@ -536,6 +540,124 @@ class Replica_remove_presult {
 
 };
 
+typedef struct _Replica_numMachines_args__isset {
+  _Replica_numMachines_args__isset() : name(false) {}
+  bool name;
+} _Replica_numMachines_args__isset;
+
+class Replica_numMachines_args {
+ public:
+
+  Replica_numMachines_args() : name() {
+  }
+
+  virtual ~Replica_numMachines_args() throw() {}
+
+  std::string name;
+
+  _Replica_numMachines_args__isset __isset;
+
+  void __set_name(const std::string& val) {
+    name = val;
+  }
+
+  bool operator == (const Replica_numMachines_args & rhs) const
+  {
+    if (!(name == rhs.name))
+      return false;
+    return true;
+  }
+  bool operator != (const Replica_numMachines_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Replica_numMachines_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class Replica_numMachines_pargs {
+ public:
+
+
+  virtual ~Replica_numMachines_pargs() throw() {}
+
+  const std::string* name;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Replica_numMachines_result__isset {
+  _Replica_numMachines_result__isset() : success(false), e(false) {}
+  bool success;
+  bool e;
+} _Replica_numMachines_result__isset;
+
+class Replica_numMachines_result {
+ public:
+
+  Replica_numMachines_result() : success() {
+  }
+
+  virtual ~Replica_numMachines_result() throw() {}
+
+  std::string success;
+  ReplicaError e;
+
+  _Replica_numMachines_result__isset __isset;
+
+  void __set_success(const std::string& val) {
+    success = val;
+  }
+
+  void __set_e(const ReplicaError& val) {
+    e = val;
+  }
+
+  bool operator == (const Replica_numMachines_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    if (!(e == rhs.e))
+      return false;
+    return true;
+  }
+  bool operator != (const Replica_numMachines_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const Replica_numMachines_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _Replica_numMachines_presult__isset {
+  _Replica_numMachines_presult__isset() : success(false), e(false) {}
+  bool success;
+  bool e;
+} _Replica_numMachines_presult__isset;
+
+class Replica_numMachines_presult {
+ public:
+
+
+  virtual ~Replica_numMachines_presult() throw() {}
+
+  std::string* success;
+  ReplicaError e;
+
+  _Replica_numMachines_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 
 class Replica_exit_args {
  public:
@@ -605,6 +727,9 @@ class ReplicaClient : virtual public ReplicaIf {
   void remove(const std::string& name);
   void send_remove(const std::string& name);
   void recv_remove();
+  void numMachines(std::string& _return, const std::string& name);
+  void send_numMachines(const std::string& name);
+  void recv_numMachines(std::string& _return);
   void exit();
   void send_exit();
  protected:
@@ -626,6 +751,7 @@ class ReplicaProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_apply(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_getState(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_remove(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_numMachines(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_exit(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   ReplicaProcessor(boost::shared_ptr<ReplicaIf> iface) :
@@ -634,6 +760,7 @@ class ReplicaProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["apply"] = &ReplicaProcessor::process_apply;
     processMap_["getState"] = &ReplicaProcessor::process_getState;
     processMap_["remove"] = &ReplicaProcessor::process_remove;
+    processMap_["numMachines"] = &ReplicaProcessor::process_numMachines;
     processMap_["exit"] = &ReplicaProcessor::process_exit;
   }
 
@@ -699,6 +826,16 @@ class ReplicaMultiface : virtual public ReplicaIf {
       ifaces_[i]->remove(name);
     }
     ifaces_[i]->remove(name);
+  }
+
+  void numMachines(std::string& _return, const std::string& name) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->numMachines(_return, name);
+    }
+    ifaces_[i]->numMachines(_return, name);
+    return;
   }
 
   void exit() {

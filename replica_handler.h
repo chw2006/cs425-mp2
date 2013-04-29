@@ -24,6 +24,7 @@ public:
 	virtual void apply(std::string& _return, const std::string& name, const std::string& operation);
 	virtual void getState(std::string& _return, const std::string& name);
 	virtual void remove(const std::string& name);
+	virtual void numMachines(std::string& _return, const std::string & name);
 	virtual void exit(void);
 
 private:

@@ -54,6 +54,13 @@ void Replica::remove(const string &name) {
 	cout << "Removing machine: " << name << endl;
 }
 
+void Replica::numMachines(string & result, const string &name) {
+	checkExists(name);
+
+	result = machines.size();
+	cout << "Getting number of machines: " << result << endl;
+}
+
 
 /* DO NOT CHANGE THIS */
 void Replica::exit(void) {
