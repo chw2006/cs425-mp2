@@ -68,6 +68,10 @@ int main(int argc, char **argv) {
 		    		cout << "Expected 2 arguments" << endl;
 		    	}else{
 		    		cout << "Getting state from machine " << args[1] << endl;
+		    		if(machines.find(args[1]) == machines.end()) {
+		    			shared_ptr<StateMachine> temp = frontEnd.get(args[1]);
+		    			machines.insert(pair<string, shared_ptr<StateMachine> >(args[1], temp));
+		    		}
 		    		cout << machines[args[1]]->getState() << endl;
 		    	}
 		    // apply operation: apply [name] [operation]
@@ -76,6 +80,10 @@ int main(int argc, char **argv) {
 		    		cout << "Expected 3 arguments" << endl;
 		    	}else{
 		    		cout << "Applying operation " << args[2] << " to machine " << args[1] << endl;
+		    		if(machines.find(args[1]) == machines.end()) {
+		    			shared_ptr<StateMachine> temp = frontEnd.get(args[1]);
+		    			machines.insert(pair<string, shared_ptr<StateMachine> >(args[1], temp));
+		    		}
 		    		cout << machines[args[1]]->apply(args[2]) << endl;
 		    	}
 		    // remove machine: remove [name]
@@ -85,6 +93,10 @@ int main(int argc, char **argv) {
 		    		break;
 		    	}
 		    	cout << "Removing machine " << args[1] << endl;
+		    	if(machines.find(args[1]) == machines.end()) {
+		    			shared_ptr<StateMachine> temp = frontEnd.get(args[1]);
+		    			machines.insert(pair<string, shared_ptr<StateMachine> >(args[1], temp));
+		    		}
 		    	frontEnd.remove(args[1]);
 		    // invalid inputs
 		    }else if(args[0] == "exit") {

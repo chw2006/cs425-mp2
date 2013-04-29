@@ -1,0 +1,169 @@
+bankbalance_unittest.o: bankbalance_unittest.cpp bankbalance.h \
+ statemachine.h /class/ece428/libs/gtest-1.6.0/include/gtest/gtest.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-internal.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-port.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-string.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-filepath.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-type-util.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-death-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-death-test-internal.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-message.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-param-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-param-util.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-linked_ptr.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-printers.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-param-util-generated.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest_prod.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-test-part.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-typed-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest_pred_impl.h
+client.o: client.cpp frontend.h statemachine.h replicas.h \
+ gen-cpp/Replica.h /class/ece428/libs/include/thrift/TDispatchProcessor.h \
+ /class/ece428/libs/include/thrift/TProcessor.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocol.h \
+ /class/ece428/libs/include/thrift/transport/TTransport.h \
+ /class/ece428/libs/include/thrift/Thrift.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/TLogging.h \
+ /class/ece428/libs/include/thrift/transport/TTransportException.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocolException.h \
+ gen-cpp/replica_types.h \
+ /class/ece428/libs/include/thrift/TApplicationException.h
+frontend.o: frontend.cpp frontend.h statemachine.h replicas.h \
+ gen-cpp/Replica.h /class/ece428/libs/include/thrift/TDispatchProcessor.h \
+ /class/ece428/libs/include/thrift/TProcessor.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocol.h \
+ /class/ece428/libs/include/thrift/transport/TTransport.h \
+ /class/ece428/libs/include/thrift/Thrift.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/TLogging.h \
+ /class/ece428/libs/include/thrift/transport/TTransportException.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocolException.h \
+ gen-cpp/replica_types.h \
+ /class/ece428/libs/include/thrift/TApplicationException.h
+replica_handler.o: replica_handler.cpp replica_handler.h statemachine.h \
+ gen-cpp/Replica.h /class/ece428/libs/include/thrift/TDispatchProcessor.h \
+ /class/ece428/libs/include/thrift/TProcessor.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocol.h \
+ /class/ece428/libs/include/thrift/transport/TTransport.h \
+ /class/ece428/libs/include/thrift/Thrift.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/TLogging.h \
+ /class/ece428/libs/include/thrift/transport/TTransportException.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocolException.h \
+ gen-cpp/replica_types.h \
+ /class/ece428/libs/include/thrift/TApplicationException.h replicas.h
+replica_main.o: replica_main.cpp replica_handler.h statemachine.h \
+ gen-cpp/Replica.h /class/ece428/libs/include/thrift/TDispatchProcessor.h \
+ /class/ece428/libs/include/thrift/TProcessor.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocol.h \
+ /class/ece428/libs/include/thrift/transport/TTransport.h \
+ /class/ece428/libs/include/thrift/Thrift.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/TLogging.h \
+ /class/ece428/libs/include/thrift/transport/TTransportException.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocolException.h \
+ gen-cpp/replica_types.h \
+ /class/ece428/libs/include/thrift/TApplicationException.h replicas.h \
+ stringmachine.h
+replicas.o: replicas.cpp \
+ /class/ece428/libs/include/thrift/protocol/TBinaryProtocol.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocol.h \
+ /class/ece428/libs/include/thrift/transport/TTransport.h \
+ /class/ece428/libs/include/thrift/Thrift.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/TLogging.h \
+ /class/ece428/libs/include/thrift/transport/TTransportException.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocolException.h \
+ /class/ece428/libs/include/thrift/protocol/TVirtualProtocol.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocol.h \
+ /class/ece428/libs/include/thrift/protocol/TBinaryProtocol.tcc \
+ /class/ece428/libs/include/thrift/protocol/TBinaryProtocol.h \
+ /class/ece428/libs/include/thrift/server/TSimpleServer.h \
+ /class/ece428/libs/include/thrift/server/TServer.h \
+ /class/ece428/libs/include/thrift/TProcessor.h \
+ /class/ece428/libs/include/thrift/transport/TServerTransport.h \
+ /class/ece428/libs/include/thrift/transport/TTransport.h \
+ /class/ece428/libs/include/thrift/transport/TTransportException.h \
+ /class/ece428/libs/include/thrift/protocol/TBinaryProtocol.h \
+ /class/ece428/libs/include/thrift/concurrency/Thread.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/server/TThreadPoolServer.h \
+ /class/ece428/libs/include/thrift/concurrency/ThreadManager.h \
+ /class/ece428/libs/include/thrift/concurrency/Thread.h \
+ /class/ece428/libs/include/thrift/transport/TSocket.h \
+ /class/ece428/libs/include/thrift/transport/TVirtualTransport.h \
+ /class/ece428/libs/include/thrift/transport/TServerSocket.h \
+ /class/ece428/libs/include/thrift/transport/TServerTransport.h \
+ /class/ece428/libs/include/thrift/transport/TTransportUtils.h \
+ /class/ece428/libs/include/thrift/transport/TBufferTransports.h \
+ /class/ece428/libs/include/thrift/transport/TVirtualTransport.h \
+ /class/ece428/libs/include/thrift/transport/TFileTransport.h \
+ /class/ece428/libs/include/thrift/concurrency/Mutex.h \
+ /class/ece428/libs/include/thrift/concurrency/Monitor.h \
+ /class/ece428/libs/include/thrift/concurrency/Exception.h \
+ /class/ece428/libs/include/thrift/concurrency/Mutex.h \
+ /class/ece428/libs/include/thrift/transport/TServerSocket.h \
+ /class/ece428/libs/include/thrift/concurrency/ThreadManager.h \
+ /class/ece428/libs/include/thrift/concurrency/PosixThreadFactory.h \
+ replicas.h gen-cpp/Replica.h \
+ /class/ece428/libs/include/thrift/TDispatchProcessor.h \
+ /class/ece428/libs/include/thrift/TProcessor.h gen-cpp/replica_types.h \
+ /class/ece428/libs/include/thrift/TApplicationException.h
+replicas_unittest.o: replicas_unittest.cpp replica_handler.h \
+ statemachine.h gen-cpp/Replica.h \
+ /class/ece428/libs/include/thrift/TDispatchProcessor.h \
+ /class/ece428/libs/include/thrift/TProcessor.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocol.h \
+ /class/ece428/libs/include/thrift/transport/TTransport.h \
+ /class/ece428/libs/include/thrift/Thrift.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/TLogging.h \
+ /class/ece428/libs/include/thrift/transport/TTransportException.h \
+ /class/ece428/libs/include/thrift/config.h \
+ /class/ece428/libs/include/thrift/protocol/TProtocolException.h \
+ gen-cpp/replica_types.h \
+ /class/ece428/libs/include/thrift/TApplicationException.h replicas.h \
+ stringmachine.h /class/ece428/libs/gtest-1.6.0/include/gtest/gtest.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-internal.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-port.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-string.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-filepath.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-type-util.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-death-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-death-test-internal.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-message.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-param-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-param-util.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-linked_ptr.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-printers.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-param-util-generated.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest_prod.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-test-part.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-typed-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest_pred_impl.h
+statemachine.o: statemachine.cpp statemachine.h
+stringmachine_unittest.o: stringmachine_unittest.cpp stringmachine.h \
+ statemachine.h /class/ece428/libs/gtest-1.6.0/include/gtest/gtest.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-internal.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-port.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-string.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-filepath.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-type-util.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-death-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-death-test-internal.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-message.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-param-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-param-util.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-linked_ptr.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-printers.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/internal/gtest-param-util-generated.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest_prod.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-test-part.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest-typed-test.h \
+ /class/ece428/libs/gtest-1.6.0/include/gtest/gtest_pred_impl.h

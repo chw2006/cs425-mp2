@@ -31,23 +31,27 @@ void Replica::create(const string & name, const string & initialState) {
 		throw error;
 	}
  	machines.insert(make_pair(name, factory.make(initialState)));
+ 	cout << "Creating machine: " << name << endl;
 }
 
 void Replica::apply(string & result, const string & name, const string& operation) {
 	checkExists(name);
 	result = machines[name]->apply(operation);
+	cout << "Applying operation: " << operation << endl;
 }
 
 void Replica::getState(string& result, const string &name) {
 	checkExists(name);
 
 	result = machines[name]->getState();
+	cout << "Getting state: " << result << endl;
 }
 
 void Replica::remove(const string &name) {
 	checkExists(name);
 
 	machines.erase(name);
+	cout << "Removing machine: " << name << endl;
 }
 
 
