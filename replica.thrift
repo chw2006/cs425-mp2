@@ -25,7 +25,7 @@ service Replica {
 	void remove(1: string name) throws (1:ReplicaError e),
 
 	// get number of state machines hosted by this manager
-	string numMachines(1: string name) throws (1:ReplicaError e),
+	i32 numMachines(1: string name) throws (1:ReplicaError e),
 
 	// exit / crash
 	oneway void exit()

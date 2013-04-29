@@ -815,8 +815,8 @@ uint32_t Replica_numMachines_result::read(::apache::thrift::protocol::TProtocol*
     switch (fid)
     {
       case 0:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->success);
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->success);
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -849,8 +849,8 @@ uint32_t Replica_numMachines_result::write(::apache::thrift::protocol::TProtocol
   xfer += oprot->writeStructBegin("Replica_numMachines_result");
 
   if (this->__isset.success) {
-    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRING, 0);
-    xfer += oprot->writeString(this->success);
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_I32, 0);
+    xfer += oprot->writeI32(this->success);
     xfer += oprot->writeFieldEnd();
   } else if (this->__isset.e) {
     xfer += oprot->writeFieldBegin("e", ::apache::thrift::protocol::T_STRUCT, 1);
@@ -883,8 +883,8 @@ uint32_t Replica_numMachines_presult::read(::apache::thrift::protocol::TProtocol
     switch (fid)
     {
       case 0:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString((*(this->success)));
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32((*(this->success)));
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -1191,10 +1191,10 @@ void ReplicaClient::recv_remove()
   return;
 }
 
-void ReplicaClient::numMachines(std::string& _return, const std::string& name)
+int32_t ReplicaClient::numMachines(const std::string& name)
 {
   send_numMachines(name);
-  recv_numMachines(_return);
+  return recv_numMachines();
 }
 
 void ReplicaClient::send_numMachines(const std::string& name)
@@ -1211,7 +1211,7 @@ void ReplicaClient::send_numMachines(const std::string& name)
   oprot_->getTransport()->flush();
 }
 
-void ReplicaClient::recv_numMachines(std::string& _return)
+int32_t ReplicaClient::recv_numMachines()
 {
 
   int32_t rseqid = 0;
@@ -1236,6 +1236,7 @@ void ReplicaClient::recv_numMachines(std::string& _return)
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
   }
+  int32_t _return;
   Replica_numMachines_presult result;
   result.success = &_return;
   result.read(iprot_);
@@ -1243,8 +1244,7 @@ void ReplicaClient::recv_numMachines(std::string& _return)
   iprot_->getTransport()->readEnd();
 
   if (result.__isset.success) {
-    // _return pointer has now been filled
-    return;
+    return _return;
   }
   if (result.__isset.e) {
     throw result.e;
@@ -1538,7 +1538,7 @@ void ReplicaProcessor::process_numMachines(int32_t seqid, ::apache::thrift::prot
 
   Replica_numMachines_result result;
   try {
-    iface_->numMachines(result.success, args.name);
+    result.success = iface_->numMachines(args.name);
     result.__isset.success = true;
   } catch (ReplicaError &e) {
     result.e = e;

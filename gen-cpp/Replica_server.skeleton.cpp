@@ -42,7 +42,7 @@ class ReplicaHandler : virtual public ReplicaIf {
     printf("remove\n");
   }
 
-  void numMachines(std::string& _return, const std::string& name) {
+  int32_t numMachines(const std::string& name) {
     // Your implementation goes here
     printf("numMachines\n");
   }

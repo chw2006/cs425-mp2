@@ -19,7 +19,7 @@ class ReplicaIf {
   virtual void apply(std::string& _return, const std::string& name, const std::string& operation) = 0;
   virtual void getState(std::string& _return, const std::string& name) = 0;
   virtual void remove(const std::string& name) = 0;
-  virtual void numMachines(std::string& _return, const std::string& name) = 0;
+  virtual int32_t numMachines(const std::string& name) = 0;
   virtual void exit() = 0;
 };
 
@@ -62,8 +62,9 @@ class ReplicaNull : virtual public ReplicaIf {
   void remove(const std::string& /* name */) {
     return;
   }
-  void numMachines(std::string& /* _return */, const std::string& /* name */) {
-    return;
+  int32_t numMachines(const std::string& /* name */) {
+    int32_t _return = 0;
+    return _return;
   }
   void exit() {
     return;
@@ -600,17 +601,17 @@ typedef struct _Replica_numMachines_result__isset {
 class Replica_numMachines_result {
  public:
 
-  Replica_numMachines_result() : success() {
+  Replica_numMachines_result() : success(0) {
   }
 
   virtual ~Replica_numMachines_result() throw() {}
 
-  std::string success;
+  int32_t success;
   ReplicaError e;
 
   _Replica_numMachines_result__isset __isset;
 
-  void __set_success(const std::string& val) {
+  void __set_success(const int32_t val) {
     success = val;
   }
 
@@ -649,7 +650,7 @@ class Replica_numMachines_presult {
 
   virtual ~Replica_numMachines_presult() throw() {}
 
-  std::string* success;
+  int32_t* success;
   ReplicaError e;
 
   _Replica_numMachines_presult__isset __isset;
@@ -727,9 +728,9 @@ class ReplicaClient : virtual public ReplicaIf {
   void remove(const std::string& name);
   void send_remove(const std::string& name);
   void recv_remove();
-  void numMachines(std::string& _return, const std::string& name);
+  int32_t numMachines(const std::string& name);
   void send_numMachines(const std::string& name);
-  void recv_numMachines(std::string& _return);
+  int32_t recv_numMachines();
   void exit();
   void send_exit();
  protected:
@@ -828,14 +829,13 @@ class ReplicaMultiface : virtual public ReplicaIf {
     ifaces_[i]->remove(name);
   }
 
-  void numMachines(std::string& _return, const std::string& name) {
+  int32_t numMachines(const std::string& name) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->numMachines(_return, name);
+      ifaces_[i]->numMachines(name);
     }
-    ifaces_[i]->numMachines(_return, name);
-    return;
+    return ifaces_[i]->numMachines(name);
   }
 
   void exit() {

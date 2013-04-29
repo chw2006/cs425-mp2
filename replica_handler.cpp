@@ -54,11 +54,11 @@ void Replica::remove(const string &name) {
 	cout << "Removing machine: " << name << endl;
 }
 
-void Replica::numMachines(string & result, const string &name) {
+int32_t Replica::numMachines(const string &name) {
 	checkExists(name);
-
-	result = machines.size();
+	int32_t result = machines.size();
 	cout << "Getting number of machines: " << result << endl;
+	return result;
 }
 
 
