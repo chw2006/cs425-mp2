@@ -25,8 +25,6 @@ public:
 	// the state machine must throw an exception when apply() or getState() 
 	// are called
 	void remove(const std::string &name);
-private:
-	int pid;
 };
 
 } // namespace

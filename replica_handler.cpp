@@ -43,7 +43,7 @@ void Replica::create(const string & name, const string & initialState, const std
    }
    // create the machine
    machines.insert(make_pair(name, factory.make(initialState)));
-   cout << "Creating machine " << name << " on RM #" << id << endl;
+   cout << "Creating machine " << name << " on RM #" << id << ". Now " << machines.size() << " here" << endl;
 }
 
 void Replica::apply(string & result, const string & name, const string& operation) {
@@ -63,7 +63,7 @@ void Replica::remove(const string &name) {
 	checkExists(name);
 
 	machines.erase(name);
-	cout << "Removing machine: " << name << endl;
+	cout << "Removing machine: " << name << ". Now " << machines.size() << " here" << endl;
 }
 
 int32_t Replica::numMachines() {

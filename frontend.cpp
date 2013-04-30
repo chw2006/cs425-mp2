@@ -9,16 +9,18 @@
 using namespace std;
 using namespace mp2;
 using boost::shared_ptr;
+using namespace apache::thrift;
 
 class StateMachineStub : public mp2::StateMachine {
 private:
-	ReplicaIf & replica;
+	mutable ReplicaIf & replica;
 	const string name;
-	vector<int> reps;
+	shared_ptr<Replicas> replicas;
 
 public:
-	StateMachineStub(ReplicaIf & replica, const string &name)
-		: replica(replica), name(name) {}
+	StateMachineStub(ReplicaIf & replica, const string &name, shared_ptr<Replicas> replicas)
+		: replica(replica), name(name), replicas(replicas) {}
+
 	virtual string apply(const string & operation) {
 		string result;
 		replica.apply(result, name, operation);
@@ -27,8 +29,30 @@ public:
 
 	virtual string getState(void) const {
 		string result;
-		replica.getState(result, name);
-		return result;
+		try {
+			replica.getState(result, name);
+			return result;
+		} catch (TException e) {
+			cerr << "RM failed. Searching for backup";
+		}
+		// try {
+		// 	replica = (*replicas)[0].get(name);
+		// 	replica.getState(result, name);
+		// 	return result;
+		// } catch (exception e) {;
+		// 	cerr << "State machine " << name << " not found in network: " << e << endl;
+		// }
+		for(uint i = 0; i < replicas->numReplicas(); i++) {
+			try {
+				(*replicas)[i].getState(result, name);
+				replica = (*replicas)[i];
+				return result;
+			} catch (ReplicaError e) {
+				cerr << "Can't getState from machine " << name << " from RM #" << i << ": " << e.message << endl;
+			}
+		}
+		cerr << "State machine " << name << " not found in network" << endl;
+		return "";
 	}
 };
 
@@ -36,10 +60,8 @@ FrontEnd::FrontEnd(boost::shared_ptr<Replicas> replicas) : replicas(replicas) {}
 
 FrontEnd::~FrontEnd() { }
 
-// TODO: interface and request protocol
+// TODO: comment on interface and request protocol
 shared_ptr<StateMachine> FrontEnd::create(const string &name, const string &initialState) {
-	// Always uses machine 0
-	// (*replicas)[0].create(name, initialState);
 	// loop through available managers and return the 3 least loaded ones
 	// init reps vector
 	vector<int> reps;
@@ -64,8 +86,8 @@ shared_ptr<StateMachine> FrontEnd::create(const string &name, const string &init
 				if((*replicas)[reps[maxidx]].numMachines() < (*replicas)[reps[2]].numMachines())
 					maxidx = 2;
 			}
-		} catch (ReplicaError e) {
-			cerr << "RM " << i << " is dead: " << e.message << endl;
+		} catch (TException e) {
+			cerr << "RM " << i << " is dead" << endl;
 		}
 	}
 
@@ -89,12 +111,18 @@ shared_ptr<StateMachine> FrontEnd::get(const string &name) {
 			cerr << "Ignoring RM " << i << ": " << e.message << endl;
 		}
 	}
-	shared_ptr<StateMachine> result(new StateMachineStub((*replicas)[i], name));
+	shared_ptr<StateMachine> result(new StateMachineStub((*replicas)[i], name, replicas));
 	return result;
 }
 
 void FrontEnd::remove(const string &name) {
-	(*replicas)[0].remove(name);
+	for(uint i = 0; i < replicas->numReplicas(); i++) {
+		try {
+			(*replicas)[i].remove(name);
+		} catch (exception e) {
+			cerr << "Can't remove machine " << name << " from RM #" << i << endl;
+		}
+	}
 }
 
 
