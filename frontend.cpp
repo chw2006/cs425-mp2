@@ -166,13 +166,10 @@ void FrontEnd::remove(const string &name) {
 	for(uint i = 0; i < replicas->numReplicas(); i++) {
 		try {
 			(*replicas)[i].remove(name, true);
-<<<<<<< HEAD
-=======
 		} catch (ReplicaError e) {
 			cerr << "Can't remove machine " << name << " from RM #" << i << ": " << e.message << endl;
 		} catch (TException e) {
 			cerr << "Can't remove machine " << name << " from RM #" << i << " since it's dead" << endl;
->>>>>>> 7e4044712d1a56c3da8d1c2cb5b6dcfd5dd780c2
 		} catch (exception e) {
 			cerr << "Can't remove machine " << name << " from RM #" << i << endl;
 		}
