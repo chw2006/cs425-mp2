@@ -37,7 +37,7 @@ class ReplicaHandler : virtual public ReplicaIf {
     printf("getState\n");
   }
 
-  void remove(const std::string& name) {
+  void remove(const std::string& name, const bool fromFrontEnd) {
     // Your implementation goes here
     printf("remove\n");
   }
@@ -50,11 +50,6 @@ class ReplicaHandler : virtual public ReplicaIf {
   bool hasStateMachine(const std::string& name) {
     // Your implementation goes here
     printf("hasStateMachine\n");
-  }
-
-  void replaceRM(const std::string& name) {
-    // Your implementation goes here
-    printf("replaceRM\n");
   }
 
   void exit() {

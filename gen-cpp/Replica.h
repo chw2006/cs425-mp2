@@ -18,10 +18,9 @@ class ReplicaIf {
   virtual void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) = 0;
   virtual void apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd) = 0;
   virtual void getState(std::string& _return, const std::string& name) = 0;
-  virtual void remove(const std::string& name) = 0;
+  virtual void remove(const std::string& name, const bool fromFrontEnd) = 0;
   virtual int32_t numMachines() = 0;
   virtual bool hasStateMachine(const std::string& name) = 0;
-  virtual void replaceRM(const std::string& name) = 0;
   virtual void exit() = 0;
 };
 
@@ -61,7 +60,7 @@ class ReplicaNull : virtual public ReplicaIf {
   void getState(std::string& /* _return */, const std::string& /* name */) {
     return;
   }
-  void remove(const std::string& /* name */) {
+  void remove(const std::string& /* name */, const bool /* fromFrontEnd */) {
     return;
   }
   int32_t numMachines() {
@@ -71,9 +70,6 @@ class ReplicaNull : virtual public ReplicaIf {
   bool hasStateMachine(const std::string& /* name */) {
     bool _return = false;
     return _return;
-  }
-  void replaceRM(const std::string& /* name */) {
-    return;
   }
   void exit() {
     return;
@@ -470,19 +466,21 @@ class Replica_getState_presult {
 };
 
 typedef struct _Replica_remove_args__isset {
-  _Replica_remove_args__isset() : name(false) {}
+  _Replica_remove_args__isset() : name(false), fromFrontEnd(false) {}
   bool name;
+  bool fromFrontEnd;
 } _Replica_remove_args__isset;
 
 class Replica_remove_args {
  public:
 
-  Replica_remove_args() : name() {
+  Replica_remove_args() : name(), fromFrontEnd(0) {
   }
 
   virtual ~Replica_remove_args() throw() {}
 
   std::string name;
+  bool fromFrontEnd;
 
   _Replica_remove_args__isset __isset;
 
@@ -490,9 +488,15 @@ class Replica_remove_args {
     name = val;
   }
 
+  void __set_fromFrontEnd(const bool val) {
+    fromFrontEnd = val;
+  }
+
   bool operator == (const Replica_remove_args & rhs) const
   {
     if (!(name == rhs.name))
+      return false;
+    if (!(fromFrontEnd == rhs.fromFrontEnd))
       return false;
     return true;
   }
@@ -515,6 +519,7 @@ class Replica_remove_pargs {
   virtual ~Replica_remove_pargs() throw() {}
 
   const std::string* name;
+  const bool* fromFrontEnd;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
@@ -799,114 +804,6 @@ class Replica_hasStateMachine_presult {
 
 };
 
-typedef struct _Replica_replaceRM_args__isset {
-  _Replica_replaceRM_args__isset() : name(false) {}
-  bool name;
-} _Replica_replaceRM_args__isset;
-
-class Replica_replaceRM_args {
- public:
-
-  Replica_replaceRM_args() : name() {
-  }
-
-  virtual ~Replica_replaceRM_args() throw() {}
-
-  std::string name;
-
-  _Replica_replaceRM_args__isset __isset;
-
-  void __set_name(const std::string& val) {
-    name = val;
-  }
-
-  bool operator == (const Replica_replaceRM_args & rhs) const
-  {
-    if (!(name == rhs.name))
-      return false;
-    return true;
-  }
-  bool operator != (const Replica_replaceRM_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Replica_replaceRM_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class Replica_replaceRM_pargs {
- public:
-
-
-  virtual ~Replica_replaceRM_pargs() throw() {}
-
-  const std::string* name;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _Replica_replaceRM_result__isset {
-  _Replica_replaceRM_result__isset() : e(false) {}
-  bool e;
-} _Replica_replaceRM_result__isset;
-
-class Replica_replaceRM_result {
- public:
-
-  Replica_replaceRM_result() {
-  }
-
-  virtual ~Replica_replaceRM_result() throw() {}
-
-  ReplicaError e;
-
-  _Replica_replaceRM_result__isset __isset;
-
-  void __set_e(const ReplicaError& val) {
-    e = val;
-  }
-
-  bool operator == (const Replica_replaceRM_result & rhs) const
-  {
-    if (!(e == rhs.e))
-      return false;
-    return true;
-  }
-  bool operator != (const Replica_replaceRM_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Replica_replaceRM_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _Replica_replaceRM_presult__isset {
-  _Replica_replaceRM_presult__isset() : e(false) {}
-  bool e;
-} _Replica_replaceRM_presult__isset;
-
-class Replica_replaceRM_presult {
- public:
-
-
-  virtual ~Replica_replaceRM_presult() throw() {}
-
-  ReplicaError e;
-
-  _Replica_replaceRM_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
 
 class Replica_exit_args {
  public:
@@ -973,8 +870,8 @@ class ReplicaClient : virtual public ReplicaIf {
   void getState(std::string& _return, const std::string& name);
   void send_getState(const std::string& name);
   void recv_getState(std::string& _return);
-  void remove(const std::string& name);
-  void send_remove(const std::string& name);
+  void remove(const std::string& name, const bool fromFrontEnd);
+  void send_remove(const std::string& name, const bool fromFrontEnd);
   void recv_remove();
   int32_t numMachines();
   void send_numMachines();
@@ -982,9 +879,6 @@ class ReplicaClient : virtual public ReplicaIf {
   bool hasStateMachine(const std::string& name);
   void send_hasStateMachine(const std::string& name);
   bool recv_hasStateMachine();
-  void replaceRM(const std::string& name);
-  void send_replaceRM(const std::string& name);
-  void recv_replaceRM();
   void exit();
   void send_exit();
  protected:
@@ -1008,7 +902,6 @@ class ReplicaProcessor : public ::apache::thrift::TDispatchProcessor {
   void process_remove(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_numMachines(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_hasStateMachine(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_replaceRM(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_exit(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   ReplicaProcessor(boost::shared_ptr<ReplicaIf> iface) :
@@ -1019,7 +912,6 @@ class ReplicaProcessor : public ::apache::thrift::TDispatchProcessor {
     processMap_["remove"] = &ReplicaProcessor::process_remove;
     processMap_["numMachines"] = &ReplicaProcessor::process_numMachines;
     processMap_["hasStateMachine"] = &ReplicaProcessor::process_hasStateMachine;
-    processMap_["replaceRM"] = &ReplicaProcessor::process_replaceRM;
     processMap_["exit"] = &ReplicaProcessor::process_exit;
   }
 
@@ -1078,13 +970,13 @@ class ReplicaMultiface : virtual public ReplicaIf {
     return;
   }
 
-  void remove(const std::string& name) {
+  void remove(const std::string& name, const bool fromFrontEnd) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->remove(name);
+      ifaces_[i]->remove(name, fromFrontEnd);
     }
-    ifaces_[i]->remove(name);
+    ifaces_[i]->remove(name, fromFrontEnd);
   }
 
   int32_t numMachines() {
@@ -1103,15 +995,6 @@ class ReplicaMultiface : virtual public ReplicaIf {
       ifaces_[i]->hasStateMachine(name);
     }
     return ifaces_[i]->hasStateMachine(name);
-  }
-
-  void replaceRM(const std::string& name) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->replaceRM(name);
-    }
-    ifaces_[i]->replaceRM(name);
   }
 
   void exit() {

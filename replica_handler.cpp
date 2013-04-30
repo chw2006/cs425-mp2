@@ -63,11 +63,16 @@ void Replica::create(const string & name, const string & initialState, const std
  	{
     	for(i = 1; i < RMs.size(); i++)
     	{
-    	    // pass this message to the other RMs
-    	    (*replicas)[RMs[i]].create(name, initialState, RMs, false);
+    		try {
+	    	    // pass this message to the other RMs
+	    	    (*replicas)[RMs[i]].create(name, initialState, RMs, false);
+	    	} catch (exception e) {
+	    		// do nothing
+	    	}
     	}
    }
 
+   cout << "Creating machine " << name << " at RM #" << id << ". Now " << machines.size() << " here" << endl;
    // create the machine and spawn up to a total of 3 replicas at other RMs
    pthread_mutex_lock(&managerMutex);
    machines.insert(make_pair(name, factory.make(initialState)));
@@ -94,9 +99,14 @@ void Replica::apply(string & result, const string & name, const string& operatio
 	    groupVector = groupMap[name];
 	    for(uint i = 0; i < groupVector.size(); i++)
 	    {
-	    	if((unsigned int)groupVector[i] != id)
-	    		(*replicas)[groupVector[i]].apply(result1, name, operation, false);
+	    	try {
+		    	if((unsigned int)groupVector[i] != id)
+		    		(*replicas)[groupVector[i]].apply(result1, name, operation, false);
+		    } catch (exception e) {
+		    	// do nothing
+		    }
 	    }
+	    pthread_mutex_unlock(&managerMutex);
 	}
 	// then apply operation to local state machine
 	result = machines[name]->apply(operation);
@@ -126,10 +136,14 @@ void Replica::remove(const string &name, const bool fromFrontEnd) {
 	    groupVector = groupMap[name];
 	    for(uint i = 0; i < groupVector.size(); i++)
 	    {
-	    	if((unsigned int)groupVector[i] != id)
-	    		(*replicas)[groupVector[i]].remove(name, false);
+	    	try {
+		    	if((unsigned int)groupVector[i] != id)
+		    		(*replicas)[groupVector[i]].remove(name, false);
+		    } catch (exception e) {
+		    	// do nothing
+		    }
 	    }
-	    pthread_mutex_lock(&managerMutex);
+	    pthread_mutex_unlock(&managerMutex);
 	}
 	pthread_mutex_lock(&managerMutex);
 	machines.erase(name);
