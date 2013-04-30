@@ -53,9 +53,6 @@ void Replica::create(const string & name, const string & initialState, const std
  	{
  		// build group list for this state machine
  		// TODO: LOCK THIS THING
- 		pair<int, int> group = pair<int, int>(RMs[0], RMs[1]);
- 		groups.insert(make_pair(name, group));
-
     	for(i = 1; i < RMs.size(); i++)
     	{
     	   // pass this message to the other RMs
@@ -66,7 +63,7 @@ void Replica::create(const string & name, const string & initialState, const std
    machines.insert(make_pair(name, factory.make(initialState)));
    pthread_mutex_t * stateMachineMutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t));
    mutexMap.insert(make_pair(name, stateMachineMutex));
-   std::vector<int32_t> groupVector = new std::vector<int32_t>(2);
+   std::vector<int32_t> * groupVector = new std::vector<int32_t>(2);
    for(i = 0; i < RMs.size(); i++)
    {
       if(RMs[i] != id)
@@ -96,7 +93,7 @@ void Replica::remove(const string &name) {
 
 	// TODO: LOCK!
 	machines.erase(name);
-	groups.erase(name);
+	//groups.erase(name);
 	cout << "Removing machine: " << name << ". Now " << machines.size() << " here" << endl;
 }
 
