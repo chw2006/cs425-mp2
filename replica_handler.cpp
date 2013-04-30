@@ -12,6 +12,7 @@ using namespace apache::thrift;
 Replica::Replica(int myid, StateMachineFactory & factory, shared_ptr<Replicas> replicas) 
 : factory(factory), id(myid), replicas(replicas) {
 	// any initialization you need goes here
+	pthread_mutex_init(&managerMutex, NULL);
 }
 
 void Replica::checkExists(const string &name) const throw (ReplicaError) {
@@ -31,17 +32,20 @@ void Replica::create(const string & name, const string & initialState, const std
     // locals
     uint i;
     ReplicaError error;
+    cout << "Attempting to get lock..." << endl;
     pthread_mutex_lock(&managerMutex);
+    cout << "Lock acquired..." << endl;
     // check to see if this SM already exists in other RMs
     if(fromFrontEnd)
     {
        for(i = 0; i < replicas->numReplicas(); i++)
        {
+            cout << "Checking if this SM is on any other machine"  << endl;
             if((*replicas)[i].hasStateMachine(name))
             {
 			    error.type = ErrorType::ALREADY_EXISTS;
-		    	error.name = name;
-		    	error.message = string("Machine ") + name + (" already exists");
+		    	 error.name = name;
+		    	 error.message = string("Machine ") + name + (" already exists");
 		    	throw error;
             }
         }
@@ -61,11 +65,13 @@ void Replica::create(const string & name, const string & initialState, const std
  	{
     	for(i = 1; i < RMs.size(); i++)
     	{
+    	    cout << "Passing this message to other RMs" << endl;
     	    // pass this message to the other RMs
     	    (*replicas)[RMs[i]].create(name, initialState, RMs, false);
     	}
    }
    // create the machine
+   cout << "Inserting state machine into factory..." << endl;
    machines.insert(make_pair(name, factory.make(initialState)));
    std::vector<int32_t> groupVector;
    for(i = 0; i < RMs.size(); i++)
