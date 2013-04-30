@@ -25,12 +25,13 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 }
 
 void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
-	boost::shared_ptr<boost::thread::mutex> stateMachineMutex = new boost::thread::mutex();
-	mutexMap.insert(make_pair(name, stateMachineMutex));
-	mutexMap[name]->lock();
+	//boost::shared_ptr<boost::thread::mutex> stateMachineMutex = new boost::thread::mutex();
+	//mutexMap.insert(make_pair(name, stateMachineMutex));
+	//mutexMap[name]->lock();
     // locals
     uint i;
     ReplicaError error;
+    pthread_mutex_lock(&managerMutex);
     // check to see if this SM already exists in other RMs
     if(fromFrontEnd)
     {
@@ -77,7 +78,7 @@ void Replica::create(const string & name, const string & initialState, const std
    // TODO: LOCK!
    groupMap.insert(make_pair(name, groupVector));
    cout << "Creating machine " << name << " on RM #" << id << ". Now " << machines.size() << " here" << endl;
-   mutexMap[name]->unlock();
+   pthread_mutex_unlock(&managerMutex);
 }
 
 void Replica::apply(string & result, const string & name, const string& operation, const bool fromFrontEnd) {
@@ -88,18 +89,18 @@ void Replica::apply(string & result, const string & name, const string& operatio
 	if(fromFrontEnd)
 	{
 	   // apply this to other state machines
-	   mutexMap[name]->lock();
+	   pthread_mutex_lock(&managerMutex);
 	   groupVector = groupMap[name];
 	   for(uint i = 0; i < groupVector.size(); i++)
 	   {
 	      (*replicas)[groupVector[i]].apply(result1, name, operation, false);
 	   }
-	   mutexMap[name]->unlock();  
+	   pthread_mutex_unlock(&managerMutex);
 	}
 	// if it's from another RM, then just apply this to yourself
-	mutexMap[name]->lock();
+	pthread_mutex_lock(&managerMutex);
 	result = machines[name]->apply(operation);
-	mutexMap[name]->unlock();
+	pthread_mutex_unlock(&managerMutex);
 	cout << "Applying operation: " << operation << endl;
 }
 
@@ -112,10 +113,10 @@ void Replica::getState(string& result, const string &name) {
 
 void Replica::remove(const string &name) {
 	checkExists(name);
-	mutexMap[name]->lock();
+	pthread_mutex_lock(&managerMutex);
 	machines.erase(name);
 	groupMap.erase(name);
-	mutexMap[name]->unlock();
+	pthread_mutex_unlock(&managerMutex);
 	cout << "Removing machine: " << name << ". Now " << machines.size() << " here" << endl;
 }
 

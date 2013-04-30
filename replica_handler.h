@@ -4,7 +4,8 @@
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/mutex>
+//#include <boost/mutex>
+#include <pthread.h>
 #include "statemachine.h"
 #include "Replica.h"
 #include "replicas.h"
@@ -39,7 +40,8 @@ private:
  	// check to see if replica exists and throw a error otherwise
  	void checkExists(const std::string & name) const throw (ReplicaError);
  	// add any private methods and variables you need below. 
- 	boost::unordered_map<std::string, boost::shared_ptr<boost::thread::mutex> > mutexMap;
+ 	//boost::unordered_map<std::string, boost::shared_ptr<boost::thread::mutex> > mutexMap;
+ 	pthread_mutex_t managerMutex;
  	boost::unordered_map<std::string, std::vector<int32_t> > groupMap;
 };
 
