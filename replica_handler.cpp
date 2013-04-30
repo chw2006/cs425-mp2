@@ -25,6 +25,7 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
    // locals
    uint i;
+   ReplicaError error;
    // check to see if this SM already exists in other RMs
    if(fromFrontEnd)
    {
@@ -32,10 +33,9 @@ void Replica::create(const string & name, const string & initialState, const std
       {
          if((*replicas)[i].hasStateMachine(name))
          {
-            ReplicaError error;
 		      error.type = ErrorType::ALREADY_EXISTS;
 		      error.name = name;
-		      error.message = string("Machine ") + name + (" already exists");
+		      error.message = string("Machine ") + name + (" already exists") + (" on RM # ") + i;
 		      throw error;
          }
       }
@@ -99,7 +99,6 @@ bool Replica::hasStateMachine(const std::string & name)
       return false;
    }
 }  
-
 
 /* DO NOT CHANGE THIS */
 void Replica::exit(void) {
