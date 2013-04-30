@@ -73,8 +73,6 @@ void Replica::create(const string & name, const string & initialState, const std
    machines.insert(make_pair(name, factory.make(initialState)));
    groupMap.insert(make_pair(name, RMs));
    replaceRM(name);
-   // extra unlock just in case
-   pthread_mutex_unlock(&managerMutex);
 }
 
 void Replica::apply(string & result, const string & name, const string& operation, const bool fromFrontEnd) {

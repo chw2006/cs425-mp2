@@ -155,7 +155,10 @@ shared_ptr<StateMachine> FrontEnd::get(const string &name) {
 
 // remove a state machine from the network
 void FrontEnd::remove(const string &name) {
-	
+	// loop through existing RMs and call remove on each
+	// This satisfies total ordering since the backend RMs will propagate the remove request
+	// The target machine will be removed as long as at least 1 remove request reaches a hosting RM
+	// Remove requests (either from the the frontend or other RMs) will simply be ignored on RMs that don't host the target machine
 	for(uint i = 0; i < replicas->numReplicas(); i++) {
 		try {
 			(*replicas)[i].remove(name);
