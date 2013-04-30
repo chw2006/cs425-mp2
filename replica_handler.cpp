@@ -23,7 +23,24 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 }
 
 void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
-    // check if this is a duplicate, if it is, throw a error
+   // locals
+   uint i;
+   // check to see if this SM already exists in other RMs
+   if(fromFrontEnd)
+   {
+      for(i = 0; i < replicas->numReplicas(); i++)
+      {
+         if((*replicas)[i].hasStateMachine(name))
+         {
+            ReplicaError error;
+		      error.type = ErrorType::ALREADY_EXISTS;
+		      error.name = name;
+		      error.message = string("Machine ") + name + (" already exists");
+		      throw error;
+         }
+      }
+   }
+   // check if this is a duplicate on this state on this RM, if it is, throw an error
 	if (machines.find(name) != machines.end()) {
 		ReplicaError error;
 		error.type = ErrorType::ALREADY_EXISTS;
@@ -34,9 +51,8 @@ void Replica::create(const string & name, const string & initialState, const std
  	// see which RMs we need to pass this create message to
  	if(fromFrontEnd)
  	{
-    	for(uint i = 1; i < RMs.size(); i++)
+    	for(i = 1; i < RMs.size(); i++)
     	{
-    	   static int RM = RMs[i];
     	   // pass this message to the other RMs
     	   (*replicas)[RMs[i]].create(name, initialState, RMs, false);
     	}
@@ -71,6 +87,18 @@ int32_t Replica::numMachines() {
 	cout << "Getting number of machines: " << result << endl;
 	return result;
 }
+
+bool Replica::hasStateMachine(const std::string & name)
+{
+   if(machines.find(name) == machines.end()) 
+   {
+      return true; 
+   }
+   else
+   {
+      return false;
+   }
+}  
 
 
 /* DO NOT CHANGE THIS */
