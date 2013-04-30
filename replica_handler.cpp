@@ -12,6 +12,7 @@ using namespace apache::thrift;
 Replica::Replica(int myid, StateMachineFactory & factory, shared_ptr<Replicas> replicas) 
 : factory(factory), id(myid), replicas(replicas) {
 	// any initialization you need goes here
+	// initialize lock
 	pthread_mutex_init(&managerMutex, NULL);
 }
 
@@ -26,13 +27,10 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 }
 
 void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
-	//boost::shared_ptr<boost::thread::mutex> stateMachineMutex = new boost::thread::mutex();
-	//mutexMap.insert(make_pair(name, stateMachineMutex));
-	//mutexMap[name]->lock();
     // locals
     uint i;
     ReplicaError error;
-    // check to see if this SM already exists
+    // check to see if this SM already exists spmewhere in the system
     if(fromFrontEnd)
     {
        for(i = 0; i < replicas->numReplicas(); i++)
@@ -69,25 +67,20 @@ void Replica::create(const string & name, const string & initialState, const std
     	    (*replicas)[RMs[i]].create(name, initialState, RMs, false);
     	}
    }
-    // create the machine
-    // std::vector<int32_t> groupVector;
-    // for(i = 0; i < RMs.size(); i++)
-   	// 	groupVector.push_back(RMs[i]);
-   // cout << "Getting lock in create... ";
+
+   // create the machine and spawn up to a total of 3 replicas at other RMs
    pthread_mutex_lock(&managerMutex);
    machines.insert(make_pair(name, factory.make(initialState)));
    groupMap.insert(make_pair(name, RMs));
    replaceRM(name);
-   // cout << "released lock in create" << endl;
+   // extra unlock just in case
    pthread_mutex_unlock(&managerMutex);
-   cout << "Creating machine " << name << " on RM #" << id << ". Now " << machines.size() << " here" << endl;
 }
 
 void Replica::apply(string & result, const string & name, const string& operation, const bool fromFrontEnd) {
 	checkExists(name);
 
-	// check that 3 replicas of this machine exist
-	// cout << "Getting replacement lock in apply... ";
+	// check that 3 replicas of this machine exist; fix this if this is not true
 	pthread_mutex_lock(&managerMutex);
 	replaceRM(name);
 
@@ -100,24 +93,16 @@ void Replica::apply(string & result, const string & name, const string& operatio
 	{
 		pthread_mutex_lock(&managerMutex);
 	    // apply this to other state machines
-	    // cout << "Getting 1st lock in apply... ";
-	    // pthread_mutex_lock(&managerMutex);
 	    groupVector = groupMap[name];
 	    for(uint i = 0; i < groupVector.size(); i++)
 	    {
 	    	if((unsigned int)groupVector[i] != id)
 	    		(*replicas)[groupVector[i]].apply(result1, name, operation, false);
 	    }
-	    // cout << "released 1st lock in apply" << endl;
-	    // pthread_mutex_unlock(&managerMutex);
 	}
 	// then apply operation to local state machine
-	// cout << "Getting 2nd lock in apply... ";
-	// pthread_mutex_lock(&managerMutex);
 	result = machines[name]->apply(operation);
-	// cout << "released 2nd lock in apply" << endl;
 	pthread_mutex_unlock(&managerMutex);
-
 }
 
 void Replica::getState(string& result, const string &name) {
@@ -126,18 +111,16 @@ void Replica::getState(string& result, const string &name) {
 	result = machines[name]->getState();
 	cout << "Getting state: " << result << endl;
 
-	// check that 3 replicas of this machine exist
+	// check that 3 replicas of this machine exist; fix this if this is not true
 	pthread_mutex_lock(&managerMutex);
 	replaceRM(name);
 }
 
 void Replica::remove(const string &name) {
 	checkExists(name);
-	// cout << "Getting lock in remove... ";
 	pthread_mutex_lock(&managerMutex);
 	machines.erase(name);
 	groupMap.erase(name);
-	// cout << "released lock in remove" << endl;
 	pthread_mutex_unlock(&managerMutex);
 	cout << "Removing machine: " << name << ". Now " << machines.size() << " here" << endl;
 }
@@ -160,7 +143,7 @@ bool Replica::hasStateMachine(const std::string & name)
    }
 }  
 
-// caller must acquire lock before running this
+// NOTE: caller must acquire lock before running this function
 void Replica::replaceRM(const std::string & name)
 {
 	// invalidate failed RMs
@@ -203,12 +186,8 @@ void Replica::replaceRM(const std::string & name)
 	    // add new RM to the group list
 	    groupMap[name].push_back(rep);
 	}
-	// for(uint i = 0; i < groupMap[name].size(); i++)
-	// 	cout << groupMap[name][i];
-	// cout << endl;
 
-	// local things updated, can release lock
-	// cout << "released lock in replace" << endl;
+	// local assets updated, can release lock
 	pthread_mutex_unlock(&managerMutex);
 	// send state machine to the new RMs and update everyone's group lists
 	for(uint i = 0; i < groupMap[name].size(); i++) {

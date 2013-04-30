@@ -35,6 +35,11 @@ int main(int argc, char **argv) {
 	}
 
 	// get user input
+	// Summary of possible inputs:
+	// create new machine: 	create [name] [initial_state]
+	// get current state: 	get [name]
+	// apply operation: 	apply [name] [operation]
+	// remove machine: 		remove [name]
 	string input;
 	map<string, shared_ptr<StateMachine> > machines;
 	while(1) {
