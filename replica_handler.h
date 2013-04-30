@@ -26,6 +26,7 @@ public:
 	virtual void remove(const std::string& name);
 	virtual int32_t numMachines();
 	virtual bool hasStateMachine(const std::string & name);
+	virtual void replaceRM(const std::string & name);
 	virtual void exit(void);
 
 private:
@@ -39,8 +40,8 @@ private:
  	// check to see if replica exists and throw a error otherwise
  	void checkExists(const std::string & name) const throw (ReplicaError);
  	// add any private methods and variables you need below. 
- 	boost:unordered_map<std::string, pthread_mutex_t *> mutexMap;
- 	boost:unordered_map<std::string, std::vector<int32_t>* > groupMap;
+ 	boost::unordered_map<std::string, pthread_mutex_t *> mutexMap;
+ 	boost::unordered_map<std::string, std::vector<int32_t>* > groupMap;
 };
 
 } // namespace mp2 
