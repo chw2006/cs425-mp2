@@ -140,15 +140,17 @@ shared_ptr<StateMachine> FrontEnd::get(const string &name) {
 	for(i = 0; i < replicas->numReplicas(); i++) {
 		try {
 			// will throw exception if RM is dead
-			if((*replicas)[i].hasStateMachine(name))
+			if((*replicas)[i].hasStateMachine(name)) {
 				break;
+			}
 		} catch (TException e) {
 			cerr << "Ignoring RM " << i << " in get() since it's dead" << endl;
 		} catch (exception e) {
 			cerr << "Other exception in frontend.cpp:get()" << endl;
 		}
 	}
-	// found desired machine, create new stub and return
+	if(i >= replicas->numReplicas())
+		i = replicas->numReplicas() - 1;
 	shared_ptr<StateMachine> result(new StateMachineStub((*replicas)[i], name, replicas));
 	return result;
 }
@@ -162,6 +164,13 @@ void FrontEnd::remove(const string &name) {
 	for(uint i = 0; i < replicas->numReplicas(); i++) {
 		try {
 			(*replicas)[i].remove(name, true);
+<<<<<<< HEAD
+=======
+		} catch (ReplicaError e) {
+			cerr << "Can't remove machine " << name << " from RM #" << i << ": " << e.message << endl;
+		} catch (TException e) {
+			cerr << "Can't remove machine " << name << " from RM #" << i << " since it's dead" << endl;
+>>>>>>> 7e4044712d1a56c3da8d1c2cb5b6dcfd5dd780c2
 		} catch (exception e) {
 			cerr << "Can't remove machine " << name << " from RM #" << i << endl;
 		}

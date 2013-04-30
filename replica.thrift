@@ -30,9 +30,6 @@ service Replica {
 	// check to see if the specified state machine already exists on this RM
 	bool hasStateMachine(1: string name) throws (1:ReplicaError e),
 
-	// replicates given state machine at the least loaded living RM
-	void replaceRM(1: string name) throws (1:ReplicaError e),
-
 	// exit / crash
 	oneway void exit()
 }

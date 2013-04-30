@@ -52,11 +52,6 @@ class ReplicaHandler : virtual public ReplicaIf {
     printf("hasStateMachine\n");
   }
 
-  void replaceRM(const std::string& name) {
-    // Your implementation goes here
-    printf("replaceRM\n");
-  }
-
   void exit() {
     // Your implementation goes here
     printf("exit\n");
