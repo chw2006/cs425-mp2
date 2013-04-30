@@ -12,6 +12,20 @@ Replica::Replica(int myid, StateMachineFactory & factory, shared_ptr<Replicas> r
 	// any initialization you need goes here
 }
 
+Replica::~Replica()
+{
+   for(int i = 0; i < mutexMap.size(); i++)
+   {
+      free(mutexMap[i]);
+   }
+   erase(mutexMap);
+   for(int i = 0; i < groupMap.size(); i++)
+   {
+      free(groupMap[i]);
+   }
+   erase(groupMap);
+}
+
 void Replica::checkExists(const string &name) const throw (ReplicaError) {
 	if (machines.find(name) == machines.end()) {
 		ReplicaError error;
@@ -75,9 +89,26 @@ void Replica::create(const string & name, const string & initialState, const std
    cout << "Creating machine " << name << " on RM #" << id << ". Now " << machines.size() << " here" << endl;
 }
 
-void Replica::apply(string & result, const string & name, const string& operation) {
+void Replica::apply(string & result, const string & name, const string& operation, const bool fromFrontEnd) {
 	checkExists(name);
+	string result;
+	std::vector<int32_t> * groupVector;
+	// if this command is from the front end, then you must pass this on to the other state machines
+	if(fromFrontEnd)
+	{
+	   // apply this to other state machines
+	   pthread_mutex_lock(mutexMap[name]);
+	   groupVector = groupMap[name];
+	   for(int i = 0; i < groupVector->size(); i++)
+	   {
+	      (*replicas)[(*groupVector)[i]].apply(result, name, operation, false);
+	   }
+	   pthread_mutex_unlock(mutexMap[name]);    
+	}
+	// if it's from another RM, then just apply this to yourself
+	pthread_mutex_lock(mutexMap[name]);
 	result = machines[name]->apply(operation);
+	pthread_mutex_unlock(mutexMap[name]);
 	cout << "Applying operation: " << operation << endl;
 }
 
@@ -90,10 +121,10 @@ void Replica::getState(string& result, const string &name) {
 
 void Replica::remove(const string &name) {
 	checkExists(name);
-
-	// TODO: LOCK!
+	pthread_mutex_lock(mutexMap[name]);
 	machines.erase(name);
-	//groups.erase(name);
+	groupMap.erase(name);
+	pthread_mutex_unlock(mutexMap[name]);
 	cout << "Removing machine: " << name << ". Now " << machines.size() << " here" << endl;
 }
 
