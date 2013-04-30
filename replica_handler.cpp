@@ -91,7 +91,7 @@ void Replica::remove(const string &name) {
 
 int32_t Replica::numMachines() {
 	int32_t result = machines.size();
-	cout << "Getting number of machines: " << result << endl;
+	cout << "Getting number of machines: " << result << " ~~~ " << id << endl;
 	return result;
 }
 
