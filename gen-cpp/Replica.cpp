@@ -64,6 +64,14 @@ uint32_t Replica_create_args::read(::apache::thrift::protocol::TProtocol* iprot)
           xfer += iprot->skip(ftype);
         }
         break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_BOOL) {
+          xfer += iprot->readBool(this->fromFrontEnd);
+          this->__isset.fromFrontEnd = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -100,6 +108,10 @@ uint32_t Replica_create_args::write(::apache::thrift::protocol::TProtocol* oprot
   }
   xfer += oprot->writeFieldEnd();
 
+  xfer += oprot->writeFieldBegin("fromFrontEnd", ::apache::thrift::protocol::T_BOOL, 4);
+  xfer += oprot->writeBool(this->fromFrontEnd);
+  xfer += oprot->writeFieldEnd();
+
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -127,6 +139,10 @@ uint32_t Replica_create_pargs::write(::apache::thrift::protocol::TProtocol* opro
     }
     xfer += oprot->writeListEnd();
   }
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("fromFrontEnd", ::apache::thrift::protocol::T_BOOL, 4);
+  xfer += oprot->writeBool((*(this->fromFrontEnd)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -978,13 +994,13 @@ uint32_t Replica_exit_pargs::write(::apache::thrift::protocol::TProtocol* oprot)
   return xfer;
 }
 
-void ReplicaClient::create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs)
+void ReplicaClient::create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd)
 {
-  send_create(name, initialState, RMs);
+  send_create(name, initialState, RMs, fromFrontEnd);
   recv_create();
 }
 
-void ReplicaClient::send_create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs)
+void ReplicaClient::send_create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd)
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("create", ::apache::thrift::protocol::T_CALL, cseqid);
@@ -993,6 +1009,7 @@ void ReplicaClient::send_create(const std::string& name, const std::string& init
   args.name = &name;
   args.initialState = &initialState;
   args.RMs = &RMs;
+  args.fromFrontEnd = &fromFrontEnd;
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
@@ -1335,7 +1352,7 @@ void ReplicaProcessor::process_create(int32_t seqid, ::apache::thrift::protocol:
 
   Replica_create_result result;
   try {
-    iface_->create(args.name, args.initialState, args.RMs);
+    iface_->create(args.name, args.initialState, args.RMs, args.fromFrontEnd);
   } catch (ReplicaError &e) {
     result.e = e;
     result.__isset.e = true;

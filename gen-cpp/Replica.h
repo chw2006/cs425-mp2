@@ -15,7 +15,7 @@ namespace mp2 {
 class ReplicaIf {
  public:
   virtual ~ReplicaIf() {}
-  virtual void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs) = 0;
+  virtual void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) = 0;
   virtual void apply(std::string& _return, const std::string& name, const std::string& operation) = 0;
   virtual void getState(std::string& _return, const std::string& name) = 0;
   virtual void remove(const std::string& name) = 0;
@@ -50,7 +50,7 @@ class ReplicaIfSingletonFactory : virtual public ReplicaIfFactory {
 class ReplicaNull : virtual public ReplicaIf {
  public:
   virtual ~ReplicaNull() {}
-  void create(const std::string& /* name */, const std::string& /* initialState */, const std::vector<int32_t> & /* RMs */) {
+  void create(const std::string& /* name */, const std::string& /* initialState */, const std::vector<int32_t> & /* RMs */, const bool /* fromFrontEnd */) {
     return;
   }
   void apply(std::string& /* _return */, const std::string& /* name */, const std::string& /* operation */) {
@@ -72,16 +72,17 @@ class ReplicaNull : virtual public ReplicaIf {
 };
 
 typedef struct _Replica_create_args__isset {
-  _Replica_create_args__isset() : name(false), initialState(false), RMs(false) {}
+  _Replica_create_args__isset() : name(false), initialState(false), RMs(false), fromFrontEnd(false) {}
   bool name;
   bool initialState;
   bool RMs;
+  bool fromFrontEnd;
 } _Replica_create_args__isset;
 
 class Replica_create_args {
  public:
 
-  Replica_create_args() : name(), initialState() {
+  Replica_create_args() : name(), initialState(), fromFrontEnd(0) {
   }
 
   virtual ~Replica_create_args() throw() {}
@@ -89,6 +90,7 @@ class Replica_create_args {
   std::string name;
   std::string initialState;
   std::vector<int32_t>  RMs;
+  bool fromFrontEnd;
 
   _Replica_create_args__isset __isset;
 
@@ -104,6 +106,10 @@ class Replica_create_args {
     RMs = val;
   }
 
+  void __set_fromFrontEnd(const bool val) {
+    fromFrontEnd = val;
+  }
+
   bool operator == (const Replica_create_args & rhs) const
   {
     if (!(name == rhs.name))
@@ -111,6 +117,8 @@ class Replica_create_args {
     if (!(initialState == rhs.initialState))
       return false;
     if (!(RMs == rhs.RMs))
+      return false;
+    if (!(fromFrontEnd == rhs.fromFrontEnd))
       return false;
     return true;
   }
@@ -135,6 +143,7 @@ class Replica_create_pargs {
   const std::string* name;
   const std::string* initialState;
   const std::vector<int32_t> * RMs;
+  const bool* fromFrontEnd;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
@@ -711,8 +720,8 @@ class ReplicaClient : virtual public ReplicaIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs);
-  void send_create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs);
+  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd);
+  void send_create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd);
   void recv_create();
   void apply(std::string& _return, const std::string& name, const std::string& operation);
   void send_apply(const std::string& name, const std::string& operation);
@@ -786,13 +795,13 @@ class ReplicaMultiface : virtual public ReplicaIf {
     ifaces_.push_back(iface);
   }
  public:
-  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs) {
+  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->create(name, initialState, RMs);
+      ifaces_[i]->create(name, initialState, RMs, fromFrontEnd);
     }
-    ifaces_[i]->create(name, initialState, RMs);
+    ifaces_[i]->create(name, initialState, RMs, fromFrontEnd);
   }
 
   void apply(std::string& _return, const std::string& name, const std::string& operation) {

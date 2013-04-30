@@ -70,7 +70,7 @@ shared_ptr<StateMachine> FrontEnd::create(const string &name, const string &init
 	}
 
 	// send create request to target RM
-	(*replicas)[reps[0]].create(name, initialState, reps);
+	(*replicas)[reps[0]].create(name, initialState, reps, false);
 
 	// return success
 	return get(name);

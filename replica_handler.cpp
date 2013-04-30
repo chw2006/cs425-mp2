@@ -22,12 +22,8 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 	}	
 }
 
-<<<<<<< HEAD
-void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs) {
-=======
-void Replica::create(const string & name, const string & initialState, const std::vector<int> & RMs, bool & fromFrontEnd) {
-   // check if this is a duplicate, if it is, throw a error
->>>>>>> 7d0df7815d88168913a6c10c91be2786bc6b6a9d
+void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
+    // check if this is a duplicate, if it is, throw a error
 	if (machines.find(name) != machines.end()) {
 		ReplicaError error;
 		error.type = ErrorType::ALREADY_EXISTS;

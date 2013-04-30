@@ -22,7 +22,7 @@ class ReplicaHandler : virtual public ReplicaIf {
     // Your initialization goes here
   }
 
-  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs) {
+  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
     // Your implementation goes here
     printf("create\n");
   }
