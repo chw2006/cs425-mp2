@@ -25,7 +25,7 @@ public:
 	virtual void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd);
 	virtual void apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd);
 	virtual void getState(std::string& _return, const std::string& name);
-	virtual void remove(const std::string& name);
+	virtual void remove(const std::string& name, const bool fromFrontEnd);
 
 	// get number of state machines hosted by this manager
 	virtual int32_t numMachines();

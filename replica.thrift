@@ -22,7 +22,7 @@ service Replica {
 	string getState(1: string name) throws (1:ReplicaError e),
 
 	// remove a state machine
-	void remove(1: string name) throws (1:ReplicaError e),
+	void remove(1: string name, 2: bool fromFrontEnd) throws (1:ReplicaError e),
 
 	// get number of state machines hosted by this manager
 	i32 numMachines() throws (1:ReplicaError e),

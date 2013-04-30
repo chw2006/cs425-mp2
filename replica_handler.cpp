@@ -116,8 +116,23 @@ void Replica::getState(string& result, const string &name) {
 	replaceRM(name);
 }
 
-void Replica::remove(const string &name) {
-	checkExists(name);
+void Replica::remove(const string &name, const bool fromFrontEnd) {
+   // locals
+	std::vector<int32_t> groupVector;
+   checkExists(name);
+   // if it's from the front end, propagate this to the rest of the group
+   if(fromFrontEnd)
+	{
+	    // apply this to other state machines
+	    pthread_mutex_lock(&managerMutex);
+	    groupVector = groupMap[name];
+	    for(uint i = 0; i < groupVector.size(); i++)
+	    {
+	    	if((unsigned int)groupVector[i] != id)
+	    		(*replicas)[groupVector[i]].remove(name, false);
+	    }
+	    pthread_mutex_lock(&managerMutex);
+	}
 	pthread_mutex_lock(&managerMutex);
 	machines.erase(name);
 	groupMap.erase(name);
