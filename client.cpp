@@ -15,13 +15,14 @@ int main(int argc, char **argv) {
 
 	FrontEnd frontEnd(replicas);
 
-
 	try {
 		shared_ptr<StateMachine> machine = frontEnd.create("testmachine", "initstate");
 
 		cout << machine->getState() << endl;
 
 		cout << machine->apply("testop") << endl;
+
+		// (*replicas)[0].exit();
 
 		cout << machine->getState() << endl;
 
