@@ -25,23 +25,26 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 }
 
 void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
-   // locals
-   uint i;
-   ReplicaError error;
-   // check to see if this SM already exists in other RMs
-   if(fromFrontEnd)
-   {
-      for(i = 0; i < replicas->numReplicas(); i++)
-      {
-         if((*replicas)[i].hasStateMachine(name))
-         {
-		      error.type = ErrorType::ALREADY_EXISTS;
-		      error.name = name;
-		      error.message = string("Machine ") + name + (" already exists");
-		      throw error;
-         }
-      }
-   }
+	boost::shared_ptr<boost::signals2::mutex> stateMachineMutex;
+	mutexMap.insert(make_pair(name, stateMachineMutex));
+	mutexMap[name]->lock();
+    // locals
+    uint i;
+    ReplicaError error;
+    // check to see if this SM already exists in other RMs
+    if(fromFrontEnd)
+    {
+       for(i = 0; i < replicas->numReplicas(); i++)
+       {
+            if((*replicas)[i].hasStateMachine(name))
+            {
+			    error.type = ErrorType::ALREADY_EXISTS;
+		    	error.name = name;
+		    	error.message = string("Machine ") + name + (" already exists");
+		    	throw error;
+            }
+        }
+    }
    // check if this is a duplicate on this state on this RM, if it is, throw an error
    // also update group list to match given one
 	if (machines.find(name) != machines.end()) {
@@ -63,8 +66,6 @@ void Replica::create(const string & name, const string & initialState, const std
    }
    // create the machine
    machines.insert(make_pair(name, factory.make(initialState)));
-   boost::shared_ptr<boost::signals2::mutex> stateMachineMutex;
-   mutexMap.insert(make_pair(name, stateMachineMutex));
    boost::shared_ptr<std::vector<int32_t> > groupVector;
    for(i = 0; i < RMs.size(); i++)
    {
@@ -76,6 +77,7 @@ void Replica::create(const string & name, const string & initialState, const std
    // TODO: LOCK!
    groupMap.insert(make_pair(name, groupVector));
    cout << "Creating machine " << name << " on RM #" << id << ". Now " << machines.size() << " here" << endl;
+   mutexMap[name]->unlock();
 }
 
 void Replica::apply(string & result, const string & name, const string& operation, const bool fromFrontEnd) {
@@ -88,7 +90,7 @@ void Replica::apply(string & result, const string & name, const string& operatio
 	   // apply this to other state machines
 	   mutexMap[name]->lock();
 	   groupVector = groupMap[name];
-	   for(int i = 0; i < groupVector->size(); i++)
+	   for(uint i = 0; i < groupVector->size(); i++)
 	   {
 	      (*replicas)[(*groupVector)[i]].apply(result1, name, operation, false);
 	   }
