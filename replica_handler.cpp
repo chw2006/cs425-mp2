@@ -51,6 +51,11 @@ void Replica::create(const string & name, const string & initialState, const std
  	// see which RMs we need to pass this create message to
  	if(fromFrontEnd)
  	{
+ 		// build group list for this state machine
+ 		// TODO: LOCK THIS THING
+ 		pair<int, int> group = pair<int, int>(RMs[0], RMs[1]);
+ 		groups.insert(make_pair(name, group));
+
     	for(i = 1; i < RMs.size(); i++)
     	{
     	   // pass this message to the other RMs
@@ -78,7 +83,9 @@ void Replica::getState(string& result, const string &name) {
 void Replica::remove(const string &name) {
 	checkExists(name);
 
+	// TODO: LOCK!
 	machines.erase(name);
+	groups.erase(name);
 	cout << "Removing machine: " << name << ". Now " << machines.size() << " here" << endl;
 }
 
