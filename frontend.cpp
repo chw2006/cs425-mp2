@@ -141,15 +141,19 @@ shared_ptr<StateMachine> FrontEnd::create(const string &name, const string &init
 		try {
 			(*replicas)[rep[0]].create(name, initialState, rep, true);
 			break;
+
 		} 
 		catch (ReplicaError e) {
 			cerr << "Failed to create: " << e.message << endl;
+			break;
 		} 
 		catch (TException e) {
 			cerr << "Failed to create: RM failed" << endl;
+			break;
 		} 
 		catch (exception e) {
 			cerr << "Unknown error2 in create()" << endl;
+			break;
 		}
     }
 
@@ -203,7 +207,7 @@ void FrontEnd::remove(const string &name) {
 			cerr << "Can't remove machine " << name << " from RM #" << i << ": " << e.message << endl;
 		} 
 		catch (TException e) {
-			cerr << "Can't remove machine " << name << " from RM #" << i << " since it's dead" << endl;
+			cerr << "Can't remove machine " << name << " from RM #" << i << ": it's dead" << endl;
 		} 
 		catch (exception e) {
 			cerr << "Can't remove machine " << name << " from RM #" << i << endl;

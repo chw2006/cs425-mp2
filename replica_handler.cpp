@@ -33,6 +33,7 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
     // locals
     uint i;
+    bool exists = false;
     
     // check to see if this SM already exists somewhere in the system
     if(fromFrontEnd) {
@@ -40,17 +41,21 @@ void Replica::create(const string & name, const string & initialState, const std
          try {
             // throw an error if it has the state machine already
             if((*replicas)[i].hasStateMachine(name)) {
-               /*ReplicaError error;
-	            error.type = ErrorType::ALREADY_EXISTS;
-             	error.name = name;
-             	error.message = string("Machine ") + name + (" already exists");
-             	throw error;*/
-             	return;
+             	exists = true;
             }
 			} 
 			catch (exception e) { 
 			   // do nothing
 			}
+      }
+      // error must be thrown outside of try catch block
+   	if(exists) {
+         exists = false;
+         ReplicaError error;
+         error.type = ErrorType::ALREADY_EXISTS;
+       	error.name = name;
+       	error.message = string("Machine ") + name + (" already exists");
+       	throw error;
       }
    }
    
@@ -179,7 +184,7 @@ void Replica::remove(const string &name, const bool fromFrontEnd) {
 int32_t Replica::numMachines() {
    // get the number of machines on this RM and return it
 	int32_t result = machines.size();
-	cout << "Getting number of machines: " << result << endl;
+	//cout << "Getting number of machines: " << result << endl;
 	return result;
 }
 

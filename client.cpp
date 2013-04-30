@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 
 	FrontEnd frontEnd(replicas);
 
-	try {
+	/*try {
 		shared_ptr<StateMachine> machine = frontEnd.create("testmachine", "initstate");
 
 		cout << machine->getState() << endl;
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
 	} catch (ReplicaError e) {
 			cerr << e.message << endl;
-	}
+	}*/
 
 	// get user input
 	// Summary of possible inputs:
