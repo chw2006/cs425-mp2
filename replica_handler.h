@@ -3,7 +3,8 @@
 
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/signals2/mutex.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/mutex>
 #include "statemachine.h"
 #include "Replica.h"
 #include "replicas.h"
@@ -34,14 +35,12 @@ private:
 	boost::shared_ptr<Replicas> replicas; // used for communicating with other replicas
 	typedef boost::unordered_map<std::string, boost::shared_ptr<StateMachine> > MachineMap;
  	MachineMap machines; // a collection of state machines indexed by name
- 	typedef boost::unordered_map<std::string, std::vector<int> > GroupMap;
- 	GroupMap groups;
 
  	// check to see if replica exists and throw a error otherwise
  	void checkExists(const std::string & name) const throw (ReplicaError);
  	// add any private methods and variables you need below. 
- 	boost::unordered_map<std::string, boost::shared_ptr<boost::signals2::mutex> > mutexMap;
- 	boost::unordered_map<std::string, boost::shared_ptr<std::vector<int32_t> > > groupMap;
+ 	boost::unordered_map<std::string, boost::shared_ptr<boost::thread::mutex> > mutexMap;
+ 	boost::unordered_map<std::string, std::vector<int32_t> > groupMap;
 };
 
 } // namespace mp2 

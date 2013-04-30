@@ -25,7 +25,7 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 }
 
 void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
-	boost::shared_ptr<boost::signals2::mutex> stateMachineMutex;
+	boost::shared_ptr<boost::thread::mutex> stateMachineMutex = new boost::thread::mutex();
 	mutexMap.insert(make_pair(name, stateMachineMutex));
 	mutexMap[name]->lock();
     // locals
@@ -48,7 +48,7 @@ void Replica::create(const string & name, const string & initialState, const std
    // check if this is a duplicate on this state on this RM, if it is, throw an error
    // also update group list to match given one
 	if (machines.find(name) != machines.end()) {
-		groups[name] = RMs;
+		groupMap[name] = RMs;
 		ReplicaError error;
 		error.type = ErrorType::ALREADY_EXISTS;
 		error.name = name;
@@ -66,12 +66,12 @@ void Replica::create(const string & name, const string & initialState, const std
    }
    // create the machine
    machines.insert(make_pair(name, factory.make(initialState)));
-   boost::shared_ptr<std::vector<int32_t> > groupVector;
+   std::vector<int32_t> groupVector;
    for(i = 0; i < RMs.size(); i++)
    {
         if((unsigned int)RMs[i] != id)
         {
-       		groupVector->push_back(RMs[i]);
+       		groupVector.push_back(RMs[i]);
         }
    }
    // TODO: LOCK!
@@ -83,16 +83,16 @@ void Replica::create(const string & name, const string & initialState, const std
 void Replica::apply(string & result, const string & name, const string& operation, const bool fromFrontEnd) {
 	checkExists(name);
 	string result1;
-	boost::shared_ptr<std::vector<int32_t> > groupVector;
+	std::vector<int32_t> groupVector;
 	// if this command is from the front end, then you must pass this on to the other state machines
 	if(fromFrontEnd)
 	{
 	   // apply this to other state machines
 	   mutexMap[name]->lock();
 	   groupVector = groupMap[name];
-	   for(uint i = 0; i < groupVector->size(); i++)
+	   for(uint i = 0; i < groupVector.size(); i++)
 	   {
-	      (*replicas)[(*groupVector)[i]].apply(result1, name, operation, false);
+	      (*replicas)[groupVector[i]].apply(result1, name, operation, false);
 	   }
 	   mutexMap[name]->unlock();  
 	}
@@ -141,14 +141,14 @@ bool Replica::hasStateMachine(const std::string & name)
 void Replica::replaceRM(const std::string & name)
 {
 	// invalidate failed RMs
-	std::vector<int>::iterator prev_it = groups[name].begin(); 
-	for(std::vector<int>::iterator it = groups[name].begin(); it != groups[name].end(); ++it) {
+	std::vector<int>::iterator prev_it = groupMap[name].begin(); 
+	for(std::vector<int>::iterator it = groupMap[name].begin(); it != groupMap[name].end(); ++it) {
 		try {
 			// will throw exception if RM has failed
 			(*replicas)[*it].hasStateMachine(name);
 		} catch (TException e) {
 			// RM failed, remove from group
-			groups[name].erase(it);
+			groupMap[name].erase(it);
 			it = prev_it;
 		} catch (exception e) {
 			cerr << "Unknown error in replaceRM()" << endl;
@@ -157,7 +157,7 @@ void Replica::replaceRM(const std::string & name)
 	}
 
 	// need to do this until 3 RMs have the state machine again
-	while(groups[name].size() < 3) {
+	while(groupMap[name].size() < 3) {
 		int minload = INT_MAX;
 		int rep;
 		// find leasted loaded RM
@@ -173,12 +173,12 @@ void Replica::replaceRM(const std::string & name)
 	        }
 	    }
 	    // add new RM to the group list
-	    groups[name].push_back(rep);
+	    groupMap[name].push_back(rep);
 	}
 
 	// send state machine to the new RMs and update everyone's group lists
-	for(uint i = 0; i < groups[name].size(); i++)
-    	(*replicas)[groups[name][i]].create(name, machines[name]->getState(), groups[name], false);
+	for(uint i = 0; i < groupMap[name].size(); i++)
+    	(*replicas)[groupMap[name][i]].create(name, machines[name]->getState(), groupMap[name], false);
 
 }
 
