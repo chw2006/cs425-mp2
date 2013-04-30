@@ -35,13 +35,6 @@ public:
 		} catch (TException e) {
 			cerr << "RM failed. Searching for backup";
 		}
-		// try {
-		// 	replica = (*replicas)[0].get(name);
-		// 	replica.getState(result, name);
-		// 	return result;
-		// } catch (exception e) {;
-		// 	cerr << "State machine " << name << " not found in network: " << e << endl;
-		// }
 		for(uint i = 0; i < replicas->numReplicas(); i++) {
 			try {
 				(*replicas)[i].getState(result, name);
@@ -49,6 +42,8 @@ public:
 				return result;
 			} catch (ReplicaError e) {
 				cerr << "Can't getState from machine " << name << " from RM #" << i << ": " << e.message << endl;
+			} catch (TException e) {
+				cerr << "Can't getState from machine " << name << " from RM #" << i << " since it's dead" << endl;
 			}
 		}
 		cerr << "State machine " << name << " not found in network" << endl;

@@ -92,11 +92,11 @@ bool Replica::hasStateMachine(const std::string & name)
 {
    if(machines.find(name) == machines.end()) 
    {
-      return true; 
+      return false; 
    }
    else
    {
-      return false;
+      return true;
    }
 }  
 
