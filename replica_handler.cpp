@@ -29,25 +29,31 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) {
     // locals
     uint i;
-    ReplicaError error;
-    // check to see if this SM already exists spmewhere in the system
+
+    // check to see if this SM already exists somewhere in the system
     if(fromFrontEnd)
     {
        for(i = 0; i < replicas->numReplicas(); i++)
        {
-       		try {
-	            if((*replicas)[i].hasStateMachine(name))
-	            {
-				    error.type = ErrorType::ALREADY_EXISTS;
-			    	error.name = name;
-			    	error.message = string("Machine ") + name + (" already exists");
-			    	throw error;
-	            }
-			} catch (exception e) {
-				// do nothing
+         try 
+         {
+            // throw an error if it has the state machine already
+            if((*replicas)[i].hasStateMachine(name))
+            {
+               /*ReplicaError error;
+	            error.type = ErrorType::ALREADY_EXISTS;
+             	error.name = name;
+             	error.message = string("Machine ") + name + (" already exists");
+             	throw error;*/
+             	return;
+            }
+			} 
+			catch (exception e) 
+			{ 
+			   // don't do anything
 			}
-        }
-    }
+      }
+   }
    // check if this is a duplicate on this state on this RM, if it is, throw an error
    // also update group list to match given one
 	if(!fromFrontEnd && machines.find(name) != machines.end()) {
@@ -161,11 +167,13 @@ int32_t Replica::numMachines() {
 
 bool Replica::hasStateMachine(const std::string & name)
 {
-   if(machines.find(name) == machines.end()) 
-      return false; 
+   // if it doesn't exist, return false
+   if(machines.find(name) == machines.end())
+      return false;
+   // does exist, return true
    else
       return true;
-}  
+}
 
 // NOTE: caller must acquire lock before running this function
 void Replica::replaceRM(const std::string & name)
