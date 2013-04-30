@@ -149,8 +149,10 @@ shared_ptr<StateMachine> FrontEnd::get(const string &name) {
 			cerr << "Other exception in frontend.cpp:get()" << endl;
 		}
 	}
+	// error check if machine was not found at all
 	if(i >= replicas->numReplicas())
 		i = replicas->numReplicas() - 1;
+	// return stub
 	shared_ptr<StateMachine> result(new StateMachineStub((*replicas)[i], name, replicas));
 	return result;
 }
