@@ -25,6 +25,7 @@ public:
 	virtual void getState(std::string& _return, const std::string& name);
 	virtual void remove(const std::string& name);
 	virtual int32_t numMachines();
+	virtual bool hasStateMachine(const std::string & name);
 	virtual void exit(void);
 
 private:

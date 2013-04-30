@@ -26,6 +26,9 @@ service Replica {
 
 	// get number of state machines hosted by this manager
 	i32 numMachines() throws (1:ReplicaError e),
+	
+	// check to see if the specified state machine already exists on this RM
+	bool hasStateMachine(1: string name) throws (1:ReplicaError e),
 
 	// exit / crash
 	oneway void exit()
