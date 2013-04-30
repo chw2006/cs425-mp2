@@ -26,9 +26,14 @@ public:
 	virtual void apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd);
 	virtual void getState(std::string& _return, const std::string& name);
 	virtual void remove(const std::string& name);
+
+	// get number of state machines hosted by this manager
 	virtual int32_t numMachines();
+	// check to see if the specified state machine already exists on this RM
 	virtual bool hasStateMachine(const std::string & name);
+	// replicates given state machine at the least loaded living RM
 	virtual void replaceRM(const std::string & name);
+
 	virtual void exit(void);
 
 private:

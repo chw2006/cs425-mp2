@@ -28,6 +28,8 @@ int main(int argc, char **argv) {
 
 		frontEnd.remove("testmachine");
 
+		cout << "Prebuilt tests done!" << endl;
+
 	} catch (ReplicaError e) {
 			cerr << e.message << endl;
 	}

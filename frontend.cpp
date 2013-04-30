@@ -28,7 +28,9 @@ public:
 			replica.apply(result, name, operation, true);
 			return result;
 		} catch (TException e) {
-			cerr << "RM failed. Searching for backup";
+			cerr << "RM apply failed. Searching for backup" << endl;
+		} catch (exception e) {
+			cerr << "Unknown error in apply in FE" << endl;
 		}
 
 		// last RM has failed, try to get state from a backup
@@ -41,6 +43,8 @@ public:
 				cerr << "Can't apply op from machine " << name << " from RM #" << i << ": " << e.message << endl;
 			} catch (TException e) {
 				cerr << "Can't apply op from machine " << name << " from RM #" << i << " since it's dead" << endl;
+			} catch (exception e) {
+				cerr << "Other exception in frontend.cpp:StateMachineStub::apply()" << endl;
 			}
 		}
 
@@ -60,7 +64,9 @@ public:
 			replica.getState(result, name);
 			return result;
 		} catch (TException e) {
-			cerr << "RM failed. Searching for backup";
+			cerr << "RM getState failed. Searching for backup" << endl;
+		} catch (exception e) {
+			cerr << "Unknown error in getState in FE" << endl;
 		}
 
 		// last RM has failed, try to get state from a backup
@@ -73,6 +79,8 @@ public:
 				cerr << "Can't getState from machine " << name << " from RM #" << i << ": " << e.message << endl;
 			} catch (TException e) {
 				cerr << "Can't getState from machine " << name << " from RM #" << i << " since it's dead" << endl;
+			} catch (exception e) {
+				cerr << "Unknown exception in frontend.cpp:getState()" << endl;
 			}
 		}
 
@@ -88,16 +96,53 @@ FrontEnd::~FrontEnd() { }
 
 // create new state machine
 shared_ptr<StateMachine> FrontEnd::create(const string &name, const string &initialState) {
-	// loop through available managers and return the 3 least loaded ones
-	// init reps vector
+	// keep doing this until one succeeds
+	while(1) {
+		// find least loaded RM
+		int minload = INT_MAX;
+		vector<int> rep;
+		rep.push_back(0);
+		for(uint i = 0; i < replicas->numReplicas(); i++)
+	    {
+	    	try {
+		        if(!(*replicas)[i].hasStateMachine(name))
+		        {
+		        	int num = (*replicas)[i].numMachines();
+				    if(minload > num) {
+				    	minload = num;
+				    	rep[0] = i;
+				    }
+		        }
+		    } catch (exception e) {
+		    	// do nothing
+		    }
+		}
+		// for(uint i = 0; i < rep.size(); i++)
+		// 	cout << rep[i] << endl;
+		try {
+			(*replicas)[rep[0]].create(name, initialState, rep, true);
+			break;
+		} catch (ReplicaError e) {
+			cerr << "Failed to create: " << e.message << endl;
+		} catch (TException e) {
+			cerr << "Failed to create: RM failed" << endl;
+		} /*catch (exception e) {
+			cerr << "Unknown error2 in create()" << endl;
+		}*/
+    }
+	/*// init reps vector
 	vector<int> reps;
 	reps.push_back(0);
 	reps.push_back(1);
 	reps.push_back(2);
 	// find most loaded of the 3
-	int maxidx = 0;
-	if((*replicas)[0].numMachines() < (*replicas)[1].numMachines())
-		maxidx = 1;
+	int maxidx = -1;
+	try {
+		if((*replicas)[0].numMachines() < (*replicas)[1].numMachines())
+			maxidx = 1;
+	} catch (exception e) {
+		// do nothing
+	}
 	if((*replicas)[reps[maxidx]].numMachines() < (*replicas)[2].numMachines())
 		maxidx = 2;
 	// iterate through all managers
@@ -114,13 +159,19 @@ shared_ptr<StateMachine> FrontEnd::create(const string &name, const string &init
 			}
 		} catch (TException e) {
 			cerr << "RM " << i << " is dead" << endl;
+		} catch (exception e) {
+			cerr << "Unknown error1 in create()" << endl;
 		}
 	}
 
 	// send create request to target RM
 	// request contains name, initial state, flag indicating the frontEnd source,
 	//    and a list of the 3 least loaded RMs that should store the newly created machine
-	(*replicas)[reps[0]].create(name, initialState, reps, true);
+	try {
+		(*replicas)[reps[0]].create(name, initialState, reps, true);
+	} catch (exception e) {
+		cerr << "Unknown error2 in create()" << endl;
+	}*/
 
 	// return success
 	return get(name);
@@ -132,12 +183,13 @@ shared_ptr<StateMachine> FrontEnd::get(const string &name) {
 	uint i;
 	for(i = 0; i < replicas->numReplicas(); i++) {
 		try {
-			string temp;
 			// will throw exception if RM is dead or does not have the desired state machine
-			(*replicas)[i].getState(temp, name);
+			(*replicas)[i].hasStateMachine(name);
 			break;
-		} catch (ReplicaError e) {
-			cerr << "Ignoring RM " << i << ": " << e.message << endl;
+		} catch (TException e) {
+			cerr << "Ignoring RM " << i << " in get() since it's dead" << endl;
+		} catch (exception e) {
+			cerr << "Other exception in frontend.cpp:get()" << endl;
 		}
 	}
 	// found desired machine, create new stub and return
