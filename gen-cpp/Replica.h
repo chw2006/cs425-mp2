@@ -18,7 +18,7 @@ class ReplicaIf {
   virtual void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) = 0;
   virtual void apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd) = 0;
   virtual void getState(std::string& _return, const std::string& name) = 0;
-  virtual void remove(const std::string& name) = 0;
+  virtual void remove(const std::string& name, const bool fromFrontEnd) = 0;
   virtual int32_t numMachines() = 0;
   virtual bool hasStateMachine(const std::string& name) = 0;
   virtual void replaceRM(const std::string& name) = 0;
@@ -61,7 +61,7 @@ class ReplicaNull : virtual public ReplicaIf {
   void getState(std::string& /* _return */, const std::string& /* name */) {
     return;
   }
-  void remove(const std::string& /* name */) {
+  void remove(const std::string& /* name */, const bool /* fromFrontEnd */) {
     return;
   }
   int32_t numMachines() {
@@ -470,19 +470,21 @@ class Replica_getState_presult {
 };
 
 typedef struct _Replica_remove_args__isset {
-  _Replica_remove_args__isset() : name(false) {}
+  _Replica_remove_args__isset() : name(false), fromFrontEnd(false) {}
   bool name;
+  bool fromFrontEnd;
 } _Replica_remove_args__isset;
 
 class Replica_remove_args {
  public:
 
-  Replica_remove_args() : name() {
+  Replica_remove_args() : name(), fromFrontEnd(0) {
   }
 
   virtual ~Replica_remove_args() throw() {}
 
   std::string name;
+  bool fromFrontEnd;
 
   _Replica_remove_args__isset __isset;
 
@@ -490,9 +492,15 @@ class Replica_remove_args {
     name = val;
   }
 
+  void __set_fromFrontEnd(const bool val) {
+    fromFrontEnd = val;
+  }
+
   bool operator == (const Replica_remove_args & rhs) const
   {
     if (!(name == rhs.name))
+      return false;
+    if (!(fromFrontEnd == rhs.fromFrontEnd))
       return false;
     return true;
   }
@@ -515,6 +523,7 @@ class Replica_remove_pargs {
   virtual ~Replica_remove_pargs() throw() {}
 
   const std::string* name;
+  const bool* fromFrontEnd;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
@@ -973,8 +982,8 @@ class ReplicaClient : virtual public ReplicaIf {
   void getState(std::string& _return, const std::string& name);
   void send_getState(const std::string& name);
   void recv_getState(std::string& _return);
-  void remove(const std::string& name);
-  void send_remove(const std::string& name);
+  void remove(const std::string& name, const bool fromFrontEnd);
+  void send_remove(const std::string& name, const bool fromFrontEnd);
   void recv_remove();
   int32_t numMachines();
   void send_numMachines();
@@ -1078,13 +1087,13 @@ class ReplicaMultiface : virtual public ReplicaIf {
     return;
   }
 
-  void remove(const std::string& name) {
+  void remove(const std::string& name, const bool fromFrontEnd) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->remove(name);
+      ifaces_[i]->remove(name, fromFrontEnd);
     }
-    ifaces_[i]->remove(name);
+    ifaces_[i]->remove(name, fromFrontEnd);
   }
 
   int32_t numMachines() {

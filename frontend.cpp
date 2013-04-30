@@ -161,7 +161,7 @@ void FrontEnd::remove(const string &name) {
 	// Remove requests (either from the the frontend or other RMs) will simply be ignored on RMs that don't host the target machine
 	for(uint i = 0; i < replicas->numReplicas(); i++) {
 		try {
-			(*replicas)[i].remove(name);
+			(*replicas)[i].remove(name, true);
 		} catch (exception e) {
 			cerr << "Can't remove machine " << name << " from RM #" << i << endl;
 		}

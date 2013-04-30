@@ -37,7 +37,7 @@ class ReplicaHandler : virtual public ReplicaIf {
     printf("getState\n");
   }
 
-  void remove(const std::string& name) {
+  void remove(const std::string& name, const bool fromFrontEnd) {
     // Your implementation goes here
     printf("remove\n");
   }

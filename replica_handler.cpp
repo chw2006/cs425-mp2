@@ -121,6 +121,7 @@ void Replica::remove(const string &name, const bool fromFrontEnd) {
    // if it's from the front end, propagate this to the rest of the group
    if(fromFrontEnd)
 	{
+	    cout << "Received a remove request from the front end" << endl;
 	    // apply this to other state machines
 	    pthread_mutex_lock(&managerMutex);
 	    groupVector = groupMap[name];
@@ -129,7 +130,7 @@ void Replica::remove(const string &name, const bool fromFrontEnd) {
 	    	if((unsigned int)groupVector[i] != id)
 	    		(*replicas)[groupVector[i]].remove(name, false);
 	    }
-	    pthread_mutex_lock(&managerMutex);
+	    pthread_mutex_unlock(&managerMutex);
 	}
 	pthread_mutex_lock(&managerMutex);
 	machines.erase(name);
@@ -147,13 +148,9 @@ int32_t Replica::numMachines() {
 bool Replica::hasStateMachine(const std::string & name)
 {
    if(machines.find(name) == machines.end()) 
-   {
       return false; 
-   }
    else
-   {
       return true;
-   }
 }  
 
 // NOTE: caller must acquire lock before running this function

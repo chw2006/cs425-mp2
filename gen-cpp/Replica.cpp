@@ -670,6 +670,14 @@ uint32_t Replica_remove_args::read(::apache::thrift::protocol::TProtocol* iprot)
           xfer += iprot->skip(ftype);
         }
         break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_BOOL) {
+          xfer += iprot->readBool(this->fromFrontEnd);
+          this->__isset.fromFrontEnd = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -690,6 +698,10 @@ uint32_t Replica_remove_args::write(::apache::thrift::protocol::TProtocol* oprot
   xfer += oprot->writeString(this->name);
   xfer += oprot->writeFieldEnd();
 
+  xfer += oprot->writeFieldBegin("fromFrontEnd", ::apache::thrift::protocol::T_BOOL, 2);
+  xfer += oprot->writeBool(this->fromFrontEnd);
+  xfer += oprot->writeFieldEnd();
+
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -701,6 +713,10 @@ uint32_t Replica_remove_pargs::write(::apache::thrift::protocol::TProtocol* opro
 
   xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString((*(this->name)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("fromFrontEnd", ::apache::thrift::protocol::T_BOOL, 2);
+  xfer += oprot->writeBool((*(this->fromFrontEnd)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -1537,19 +1553,20 @@ void ReplicaClient::recv_getState(std::string& _return)
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "getState failed: unknown result");
 }
 
-void ReplicaClient::remove(const std::string& name)
+void ReplicaClient::remove(const std::string& name, const bool fromFrontEnd)
 {
-  send_remove(name);
+  send_remove(name, fromFrontEnd);
   recv_remove();
 }
 
-void ReplicaClient::send_remove(const std::string& name)
+void ReplicaClient::send_remove(const std::string& name, const bool fromFrontEnd)
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("remove", ::apache::thrift::protocol::T_CALL, cseqid);
 
   Replica_remove_pargs args;
   args.name = &name;
+  args.fromFrontEnd = &fromFrontEnd;
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
@@ -2000,7 +2017,7 @@ void ReplicaProcessor::process_remove(int32_t seqid, ::apache::thrift::protocol:
 
   Replica_remove_result result;
   try {
-    iface_->remove(args.name);
+    iface_->remove(args.name, args.fromFrontEnd);
   } catch (ReplicaError &e) {
     result.e = e;
     result.__isset.e = true;
