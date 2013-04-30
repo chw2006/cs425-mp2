@@ -13,7 +13,7 @@ exception ReplicaError {
 
 service Replica {
 	// create a state machine
-	void create(1:string name, 2:string initialState 3:list<string> RMs) throws (1:ReplicaError e),
+	void create(1:string name, 2:string initialState, 3:list<i32> RMs, 4:bool fromFrontEnd) throws (1:ReplicaError e),
 
 	// apply an operation on a state machine
 	string apply(1:string name, 2:string operation) throws (1:ReplicaError e),

@@ -22,7 +22,8 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 	}	
 }
 
-void Replica::create(const string & name, const string & initialState, const std::vector<string> & RMs) {
+void Replica::create(const string & name, const string & initialState, const std::vector<int> & RMs, bool & fromFrontEnd) {
+   // check if this is a duplicate, if it is, throw a error
 	if (machines.find(name) != machines.end()) {
 		ReplicaError error;
 		error.type = ErrorType::ALREADY_EXISTS;
@@ -30,8 +31,19 @@ void Replica::create(const string & name, const string & initialState, const std
 		error.message = string("Machine ") + name + (" already exists");
 		throw error;
 	}
- 	machines.insert(make_pair(name, factory.make(initialState)));
- 	cout << "Creating machine: " << name << endl;
+ 	// see which RMs we need to pass this create message to
+ 	if(fromFrontEnd)
+ 	{
+    	for(int i = 1; i < RMs.size(); i++)
+    	{
+    	   static int RM = RMs[i];
+    	   // pass this message to the other RMs
+    	   (*replicas)[RMs[i]].create(name, initialState, RMs, false);
+    	}
+   }
+   // create the machine
+   machines.insert(make_pair(name, factory.make(initialState)));
+ 	cout << "Creating machine " << name << "on RM" << id << endl;
 }
 
 void Replica::apply(string & result, const string & name, const string& operation) {
