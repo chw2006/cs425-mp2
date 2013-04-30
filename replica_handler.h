@@ -33,7 +33,7 @@ private:
 	boost::shared_ptr<Replicas> replicas; // used for communicating with other replicas
 	typedef boost::unordered_map<std::string, boost::shared_ptr<StateMachine> > MachineMap;
  	MachineMap machines; // a collection of state machines indexed by name
- 	typedef boost::unordered_map<std::string, std::pair<int, int> > GroupMap;
+ 	typedef boost::unordered_map<std::string, std::vector<int> > GroupMap;
  	GroupMap groups;
 
  	// check to see if replica exists and throw a error otherwise

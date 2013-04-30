@@ -51,15 +51,10 @@ void Replica::create(const string & name, const string & initialState, const std
  	// see which RMs we need to pass this create message to
  	if(fromFrontEnd)
  	{
- 		// build group list for this state machine
- 		// TODO: LOCK THIS THING
- 		pair<int, int> group = pair<int, int>(RMs[0], RMs[1]);
- 		groups.insert(make_pair(name, group));
-
     	for(i = 1; i < RMs.size(); i++)
     	{
-    	   // pass this message to the other RMs
-    	   (*replicas)[RMs[i]].create(name, initialState, RMs, false);
+    	    // pass this message to the other RMs
+    	    (*replicas)[RMs[i]].create(name, initialState, RMs, false);
     	}
    }
    // create the machine
@@ -69,10 +64,10 @@ void Replica::create(const string & name, const string & initialState, const std
    std::vector<int32_t> groupVector = new std::vector<int32_t>(2);
    for(i = 0; i < RMs.size(); i++)
    {
-      if(RMs[i] != id)
-      {
-         groupVector->push_back(RMs[i]);
-      }
+        if(RMs[i] != id)
+        {
+       		groupVector->push_back(RMs[i]);
+        }
    }
    groupMap.insert(make_pair(name, groupVector));
    cout << "Creating machine " << name << " on RM #" << id << ". Now " << machines.size() << " here" << endl;
