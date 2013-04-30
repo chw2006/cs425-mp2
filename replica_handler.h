@@ -3,7 +3,7 @@
 
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
-
+#include <pthread.h>
 #include "statemachine.h"
 #include "Replica.h"
 #include "replicas.h"
@@ -31,10 +31,8 @@ public:
 private:
 	StateMachineFactory & factory; // used for creating new state machines
 	boost::shared_ptr<Replicas> replicas; // used for communicating with other replicas
-
 	typedef boost::unordered_map<std::string, boost::shared_ptr<StateMachine> > MachineMap;
  	MachineMap machines; // a collection of state machines indexed by name
-
  	// check to see if replica exists and throw a error otherwise
  	void checkExists(const std::string & name) const throw (ReplicaError);
  	// add any private methods and variables you need below. 

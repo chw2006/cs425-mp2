@@ -47,6 +47,11 @@ class ReplicaHandler : virtual public ReplicaIf {
     printf("numMachines\n");
   }
 
+  bool hasStateMachine(const std::string& name) {
+    // Your implementation goes here
+    printf("hasStateMachine\n");
+  }
+
   void exit() {
     // Your implementation goes here
     printf("exit\n");
