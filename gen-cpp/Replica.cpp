@@ -44,6 +44,26 @@ uint32_t Replica_create_args::read(::apache::thrift::protocol::TProtocol* iprot)
           xfer += iprot->skip(ftype);
         }
         break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->RMs.clear();
+            uint32_t _size1;
+            ::apache::thrift::protocol::TType _etype4;
+            xfer += iprot->readListBegin(_etype4, _size1);
+            this->RMs.resize(_size1);
+            uint32_t _i5;
+            for (_i5 = 0; _i5 < _size1; ++_i5)
+            {
+              xfer += iprot->readI32(this->RMs[_i5]);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.RMs = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -68,6 +88,18 @@ uint32_t Replica_create_args::write(::apache::thrift::protocol::TProtocol* oprot
   xfer += oprot->writeString(this->initialState);
   xfer += oprot->writeFieldEnd();
 
+  xfer += oprot->writeFieldBegin("RMs", ::apache::thrift::protocol::T_LIST, 3);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_I32, static_cast<uint32_t>(this->RMs.size()));
+    std::vector<int32_t> ::const_iterator _iter6;
+    for (_iter6 = this->RMs.begin(); _iter6 != this->RMs.end(); ++_iter6)
+    {
+      xfer += oprot->writeI32((*_iter6));
+    }
+    xfer += oprot->writeListEnd();
+  }
+  xfer += oprot->writeFieldEnd();
+
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -83,6 +115,18 @@ uint32_t Replica_create_pargs::write(::apache::thrift::protocol::TProtocol* opro
 
   xfer += oprot->writeFieldBegin("initialState", ::apache::thrift::protocol::T_STRING, 2);
   xfer += oprot->writeString((*(this->initialState)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("RMs", ::apache::thrift::protocol::T_LIST, 3);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_I32, static_cast<uint32_t>((*(this->RMs)).size()));
+    std::vector<int32_t> ::const_iterator _iter7;
+    for (_iter7 = (*(this->RMs)).begin(); _iter7 != (*(this->RMs)).end(); ++_iter7)
+    {
+      xfer += oprot->writeI32((*_iter7));
+    }
+    xfer += oprot->writeListEnd();
+  }
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -746,20 +790,7 @@ uint32_t Replica_numMachines_args::read(::apache::thrift::protocol::TProtocol* i
     if (ftype == ::apache::thrift::protocol::T_STOP) {
       break;
     }
-    switch (fid)
-    {
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->name);
-          this->__isset.name = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
+    xfer += iprot->skip(ftype);
     xfer += iprot->readFieldEnd();
   }
 
@@ -772,10 +803,6 @@ uint32_t Replica_numMachines_args::write(::apache::thrift::protocol::TProtocol* 
   uint32_t xfer = 0;
   xfer += oprot->writeStructBegin("Replica_numMachines_args");
 
-  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString(this->name);
-  xfer += oprot->writeFieldEnd();
-
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -784,10 +811,6 @@ uint32_t Replica_numMachines_args::write(::apache::thrift::protocol::TProtocol* 
 uint32_t Replica_numMachines_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
   xfer += oprot->writeStructBegin("Replica_numMachines_pargs");
-
-  xfer += oprot->writeFieldBegin("name", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString((*(this->name)));
-  xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
@@ -955,13 +978,13 @@ uint32_t Replica_exit_pargs::write(::apache::thrift::protocol::TProtocol* oprot)
   return xfer;
 }
 
-void ReplicaClient::create(const std::string& name, const std::string& initialState)
+void ReplicaClient::create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs)
 {
-  send_create(name, initialState);
+  send_create(name, initialState, RMs);
   recv_create();
 }
 
-void ReplicaClient::send_create(const std::string& name, const std::string& initialState)
+void ReplicaClient::send_create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs)
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("create", ::apache::thrift::protocol::T_CALL, cseqid);
@@ -969,6 +992,7 @@ void ReplicaClient::send_create(const std::string& name, const std::string& init
   Replica_create_pargs args;
   args.name = &name;
   args.initialState = &initialState;
+  args.RMs = &RMs;
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
@@ -1191,19 +1215,18 @@ void ReplicaClient::recv_remove()
   return;
 }
 
-int32_t ReplicaClient::numMachines(const std::string& name)
+int32_t ReplicaClient::numMachines()
 {
-  send_numMachines(name);
+  send_numMachines();
   return recv_numMachines();
 }
 
-void ReplicaClient::send_numMachines(const std::string& name)
+void ReplicaClient::send_numMachines()
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("numMachines", ::apache::thrift::protocol::T_CALL, cseqid);
 
   Replica_numMachines_pargs args;
-  args.name = &name;
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
@@ -1312,7 +1335,7 @@ void ReplicaProcessor::process_create(int32_t seqid, ::apache::thrift::protocol:
 
   Replica_create_result result;
   try {
-    iface_->create(args.name, args.initialState);
+    iface_->create(args.name, args.initialState, args.RMs);
   } catch (ReplicaError &e) {
     result.e = e;
     result.__isset.e = true;
@@ -1538,7 +1561,7 @@ void ReplicaProcessor::process_numMachines(int32_t seqid, ::apache::thrift::prot
 
   Replica_numMachines_result result;
   try {
-    result.success = iface_->numMachines(args.name);
+    result.success = iface_->numMachines();
     result.__isset.success = true;
   } catch (ReplicaError &e) {
     result.e = e;

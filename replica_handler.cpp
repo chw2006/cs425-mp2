@@ -22,7 +22,7 @@ void Replica::checkExists(const string &name) const throw (ReplicaError) {
 	}	
 }
 
-void Replica::create(const string & name, const string & initialState, const std::vector<string> & RMs) {
+void Replica::create(const string & name, const string & initialState, const std::vector<int32_t> & RMs) {
 	if (machines.find(name) != machines.end()) {
 		ReplicaError error;
 		error.type = ErrorType::ALREADY_EXISTS;
@@ -54,8 +54,7 @@ void Replica::remove(const string &name) {
 	cout << "Removing machine: " << name << endl;
 }
 
-int32_t Replica::numMachines(const string &name) {
-	checkExists(name);
+int32_t Replica::numMachines() {
 	int32_t result = machines.size();
 	cout << "Getting number of machines: " << result << endl;
 	return result;

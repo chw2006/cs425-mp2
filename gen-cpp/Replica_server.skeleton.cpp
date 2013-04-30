@@ -22,7 +22,7 @@ class ReplicaHandler : virtual public ReplicaIf {
     // Your initialization goes here
   }
 
-  void create(const std::string& name, const std::string& initialState) {
+  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs) {
     // Your implementation goes here
     printf("create\n");
   }
@@ -42,7 +42,7 @@ class ReplicaHandler : virtual public ReplicaIf {
     printf("remove\n");
   }
 
-  int32_t numMachines(const std::string& name) {
+  int32_t numMachines() {
     // Your implementation goes here
     printf("numMachines\n");
   }

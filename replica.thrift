@@ -13,7 +13,7 @@ exception ReplicaError {
 
 service Replica {
 	// create a state machine
-	void create(1:string name, 2:string initialState 3:list<string> RMs) throws (1:ReplicaError e),
+	void create(1:string name, 2:string initialState 3:list<i32> RMs) throws (1:ReplicaError e),
 
 	// apply an operation on a state machine
 	string apply(1:string name, 2:string operation) throws (1:ReplicaError e),
@@ -25,7 +25,7 @@ service Replica {
 	void remove(1: string name) throws (1:ReplicaError e),
 
 	// get number of state machines hosted by this manager
-	i32 numMachines(1: string name) throws (1:ReplicaError e),
+	i32 numMachines() throws (1:ReplicaError e),
 
 	// exit / crash
 	oneway void exit()

@@ -15,11 +15,11 @@ namespace mp2 {
 class ReplicaIf {
  public:
   virtual ~ReplicaIf() {}
-  virtual void create(const std::string& name, const std::string& initialState) = 0;
+  virtual void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs) = 0;
   virtual void apply(std::string& _return, const std::string& name, const std::string& operation) = 0;
   virtual void getState(std::string& _return, const std::string& name) = 0;
   virtual void remove(const std::string& name) = 0;
-  virtual int32_t numMachines(const std::string& name) = 0;
+  virtual int32_t numMachines() = 0;
   virtual void exit() = 0;
 };
 
@@ -50,7 +50,7 @@ class ReplicaIfSingletonFactory : virtual public ReplicaIfFactory {
 class ReplicaNull : virtual public ReplicaIf {
  public:
   virtual ~ReplicaNull() {}
-  void create(const std::string& /* name */, const std::string& /* initialState */) {
+  void create(const std::string& /* name */, const std::string& /* initialState */, const std::vector<int32_t> & /* RMs */) {
     return;
   }
   void apply(std::string& /* _return */, const std::string& /* name */, const std::string& /* operation */) {
@@ -62,7 +62,7 @@ class ReplicaNull : virtual public ReplicaIf {
   void remove(const std::string& /* name */) {
     return;
   }
-  int32_t numMachines(const std::string& /* name */) {
+  int32_t numMachines() {
     int32_t _return = 0;
     return _return;
   }
@@ -72,9 +72,10 @@ class ReplicaNull : virtual public ReplicaIf {
 };
 
 typedef struct _Replica_create_args__isset {
-  _Replica_create_args__isset() : name(false), initialState(false) {}
+  _Replica_create_args__isset() : name(false), initialState(false), RMs(false) {}
   bool name;
   bool initialState;
+  bool RMs;
 } _Replica_create_args__isset;
 
 class Replica_create_args {
@@ -87,6 +88,7 @@ class Replica_create_args {
 
   std::string name;
   std::string initialState;
+  std::vector<int32_t>  RMs;
 
   _Replica_create_args__isset __isset;
 
@@ -98,11 +100,17 @@ class Replica_create_args {
     initialState = val;
   }
 
+  void __set_RMs(const std::vector<int32_t> & val) {
+    RMs = val;
+  }
+
   bool operator == (const Replica_create_args & rhs) const
   {
     if (!(name == rhs.name))
       return false;
     if (!(initialState == rhs.initialState))
+      return false;
+    if (!(RMs == rhs.RMs))
       return false;
     return true;
   }
@@ -126,6 +134,7 @@ class Replica_create_pargs {
 
   const std::string* name;
   const std::string* initialState;
+  const std::vector<int32_t> * RMs;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
@@ -541,31 +550,18 @@ class Replica_remove_presult {
 
 };
 
-typedef struct _Replica_numMachines_args__isset {
-  _Replica_numMachines_args__isset() : name(false) {}
-  bool name;
-} _Replica_numMachines_args__isset;
 
 class Replica_numMachines_args {
  public:
 
-  Replica_numMachines_args() : name() {
+  Replica_numMachines_args() {
   }
 
   virtual ~Replica_numMachines_args() throw() {}
 
-  std::string name;
 
-  _Replica_numMachines_args__isset __isset;
-
-  void __set_name(const std::string& val) {
-    name = val;
-  }
-
-  bool operator == (const Replica_numMachines_args & rhs) const
+  bool operator == (const Replica_numMachines_args & /* rhs */) const
   {
-    if (!(name == rhs.name))
-      return false;
     return true;
   }
   bool operator != (const Replica_numMachines_args &rhs) const {
@@ -586,7 +582,6 @@ class Replica_numMachines_pargs {
 
   virtual ~Replica_numMachines_pargs() throw() {}
 
-  const std::string* name;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
@@ -716,8 +711,8 @@ class ReplicaClient : virtual public ReplicaIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void create(const std::string& name, const std::string& initialState);
-  void send_create(const std::string& name, const std::string& initialState);
+  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs);
+  void send_create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs);
   void recv_create();
   void apply(std::string& _return, const std::string& name, const std::string& operation);
   void send_apply(const std::string& name, const std::string& operation);
@@ -728,8 +723,8 @@ class ReplicaClient : virtual public ReplicaIf {
   void remove(const std::string& name);
   void send_remove(const std::string& name);
   void recv_remove();
-  int32_t numMachines(const std::string& name);
-  void send_numMachines(const std::string& name);
+  int32_t numMachines();
+  void send_numMachines();
   int32_t recv_numMachines();
   void exit();
   void send_exit();
@@ -791,13 +786,13 @@ class ReplicaMultiface : virtual public ReplicaIf {
     ifaces_.push_back(iface);
   }
  public:
-  void create(const std::string& name, const std::string& initialState) {
+  void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->create(name, initialState);
+      ifaces_[i]->create(name, initialState, RMs);
     }
-    ifaces_[i]->create(name, initialState);
+    ifaces_[i]->create(name, initialState, RMs);
   }
 
   void apply(std::string& _return, const std::string& name, const std::string& operation) {
@@ -829,13 +824,13 @@ class ReplicaMultiface : virtual public ReplicaIf {
     ifaces_[i]->remove(name);
   }
 
-  int32_t numMachines(const std::string& name) {
+  int32_t numMachines() {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->numMachines(name);
+      ifaces_[i]->numMachines();
     }
-    return ifaces_[i]->numMachines(name);
+    return ifaces_[i]->numMachines();
   }
 
   void exit() {

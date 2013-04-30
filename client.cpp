@@ -29,7 +29,6 @@ int main(int argc, char **argv) {
 
 	} catch (ReplicaError e) {
 			cerr << e.message << endl;
-			return 1;
 	}
 
 	// get user input
