@@ -92,7 +92,7 @@ void Replica::apply(string & result, const string & name, const string& operatio
 	   {
 	      (*replicas)[(*groupVector)[i]].apply(result1, name, operation, false);
 	   }
-	   mutexMap[name]->lock();  
+	   mutexMap[name]->unlock();  
 	}
 	// if it's from another RM, then just apply this to yourself
 	mutexMap[name]->lock();
