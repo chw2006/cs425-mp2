@@ -27,7 +27,7 @@ class ReplicaHandler : virtual public ReplicaIf {
     printf("create\n");
   }
 
-  void apply(std::string& _return, const std::string& name, const std::string& operation) {
+  void apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd) {
     // Your implementation goes here
     printf("apply\n");
   }

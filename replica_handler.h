@@ -3,7 +3,7 @@
 
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
-#include <pthread.h>
+#include <boost/signals2/mutex.hpp>
 #include "statemachine.h"
 #include "Replica.h"
 #include "replicas.h"
@@ -16,7 +16,6 @@ public:
 	// My replica number
 	const unsigned int id;
 	Replica(int myid, StateMachineFactory & factory, boost::shared_ptr<Replicas> replicas);
-	~Replica(); 
 		// Do not change signature
 
 	// RPC interface. This has to match the definitions in the gen-cpp/Replicas.h
@@ -37,8 +36,8 @@ private:
  	// check to see if replica exists and throw a error otherwise
  	void checkExists(const std::string & name) const throw (ReplicaError);
  	// add any private methods and variables you need below. 
- 	boost::unordered_map<std::string, pthread_mutex_t *> mutexMap;
- 	boost::unordered_map<std::string, std::vector<int32_t>* > groupMap;
+ 	boost::unordered_map<std::string, boost::shared_ptr<boost::signals2::mutex> > mutexMap;
+ 	boost::unordered_map<std::string, boost::shared_ptr<std::vector<int32_t> > > groupMap;
 };
 
 } // namespace mp2 
