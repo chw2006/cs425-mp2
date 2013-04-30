@@ -64,6 +64,17 @@ void Replica::create(const string & name, const string & initialState, const std
    }
    // create the machine
    machines.insert(make_pair(name, factory.make(initialState)));
+   pthread_mutex_t * stateMachineMutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t));
+   mutexMap.insert(make_pair(name, stateMachineMutex));
+   std::vector<int32_t> groupVector = new std::vector<int32_t>(2);
+   for(i = 0; i < RMs.size(); i++)
+   {
+      if(RMs[i] != id)
+      {
+         groupVector->push_back(RMs[i]);
+      }
+   }
+   groupMap.insert(make_pair(name, groupVector));
    cout << "Creating machine " << name << " on RM #" << id << ". Now " << machines.size() << " here" << endl;
 }
 

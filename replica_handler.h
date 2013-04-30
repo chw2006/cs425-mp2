@@ -39,6 +39,8 @@ private:
  	// check to see if replica exists and throw a error otherwise
  	void checkExists(const std::string & name) const throw (ReplicaError);
  	// add any private methods and variables you need below. 
+ 	boost:unordered_map<std::string, pthread_mutex_t *> mutexMap;
+ 	boost:unordered_map<std::string, std::vector<int32_t>* > groupMap;
 };
 
 } // namespace mp2 
