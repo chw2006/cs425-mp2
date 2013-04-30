@@ -16,7 +16,7 @@ service Replica {
 	void create(1:string name, 2:string initialState, 3:list<i32> RMs, 4:bool fromFrontEnd) throws (1:ReplicaError e),
 
 	// apply an operation on a state machine
-	string apply(1:string name, 2:string operation) throws (1:ReplicaError e),
+	string apply(1:string name, 2:string operation, 3:bool fromFrontEnd) throws (1:ReplicaError e),
 
 	// get the state of a state machine
 	string getState(1: string name) throws (1:ReplicaError e),

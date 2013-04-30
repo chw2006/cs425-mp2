@@ -282,6 +282,14 @@ uint32_t Replica_apply_args::read(::apache::thrift::protocol::TProtocol* iprot) 
           xfer += iprot->skip(ftype);
         }
         break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_BOOL) {
+          xfer += iprot->readBool(this->fromFrontEnd);
+          this->__isset.fromFrontEnd = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -306,6 +314,10 @@ uint32_t Replica_apply_args::write(::apache::thrift::protocol::TProtocol* oprot)
   xfer += oprot->writeString(this->operation);
   xfer += oprot->writeFieldEnd();
 
+  xfer += oprot->writeFieldBegin("fromFrontEnd", ::apache::thrift::protocol::T_BOOL, 3);
+  xfer += oprot->writeBool(this->fromFrontEnd);
+  xfer += oprot->writeFieldEnd();
+
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -321,6 +333,10 @@ uint32_t Replica_apply_pargs::write(::apache::thrift::protocol::TProtocol* oprot
 
   xfer += oprot->writeFieldBegin("operation", ::apache::thrift::protocol::T_STRING, 2);
   xfer += oprot->writeString((*(this->operation)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("fromFrontEnd", ::apache::thrift::protocol::T_BOOL, 3);
+  xfer += oprot->writeBool((*(this->fromFrontEnd)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -1397,13 +1413,13 @@ void ReplicaClient::recv_create()
   return;
 }
 
-void ReplicaClient::apply(std::string& _return, const std::string& name, const std::string& operation)
+void ReplicaClient::apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd)
 {
-  send_apply(name, operation);
+  send_apply(name, operation, fromFrontEnd);
   recv_apply(_return);
 }
 
-void ReplicaClient::send_apply(const std::string& name, const std::string& operation)
+void ReplicaClient::send_apply(const std::string& name, const std::string& operation, const bool fromFrontEnd)
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("apply", ::apache::thrift::protocol::T_CALL, cseqid);
@@ -1411,6 +1427,7 @@ void ReplicaClient::send_apply(const std::string& name, const std::string& opera
   Replica_apply_pargs args;
   args.name = &name;
   args.operation = &operation;
+  args.fromFrontEnd = &fromFrontEnd;
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
@@ -1869,7 +1886,7 @@ void ReplicaProcessor::process_apply(int32_t seqid, ::apache::thrift::protocol::
 
   Replica_apply_result result;
   try {
-    iface_->apply(result.success, args.name, args.operation);
+    iface_->apply(result.success, args.name, args.operation, args.fromFrontEnd);
     result.__isset.success = true;
   } catch (ReplicaError &e) {
     result.e = e;

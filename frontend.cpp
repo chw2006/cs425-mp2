@@ -23,8 +23,33 @@ public:
 
 	virtual string apply(const string & operation) {
 		string result;
-		replica.apply(result, name, operation);
-		return result;
+		// try to obtain state from last known alive RM
+		try {
+			replica.apply(result, name, operation, true);
+			return result;
+		} catch (TException e) {
+			cerr << "RM failed. Searching for backup";
+		}
+
+		// last RM has failed, try to get state from a backup
+		for(uint i = 0; i < replicas->numReplicas(); i++) {
+			try {
+				(*replicas)[i].apply(result, name, operation, true);
+				replica = (*replicas)[i];
+				return result;
+			} catch (ReplicaError e) {
+				cerr << "Can't apply op from machine " << name << " from RM #" << i << ": " << e.message << endl;
+			} catch (TException e) {
+				cerr << "Can't apply op from machine " << name << " from RM #" << i << " since it's dead" << endl;
+			}
+		}
+
+		// failed to find any RM hosting desired machine
+		cerr << "State machine " << name << " not found in network. Could not apply operation " << endl;
+		return "";
+		// string result;
+		// replica.apply(result, name, operation, true);
+		// return result;
 	}
 
 	// return current state of machine

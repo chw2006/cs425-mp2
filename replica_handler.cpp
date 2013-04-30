@@ -63,9 +63,9 @@ void Replica::create(const string & name, const string & initialState, const std
    }
    // create the machine
    machines.insert(make_pair(name, factory.make(initialState)));
-   pthread_mutex_t * stateMachineMutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t));
+   boost::shared_ptr<boost::signals2::mutex> stateMachineMutex;
    mutexMap.insert(make_pair(name, stateMachineMutex));
-   std::vector<int32_t> * groupVector = new std::vector<int32_t>(2);
+   boost::shared_ptr<std::vector<int32_t> > groupVector;
    for(i = 0; i < RMs.size(); i++)
    {
         if((unsigned int)RMs[i] != id)
@@ -78,9 +78,26 @@ void Replica::create(const string & name, const string & initialState, const std
    cout << "Creating machine " << name << " on RM #" << id << ". Now " << machines.size() << " here" << endl;
 }
 
-void Replica::apply(string & result, const string & name, const string& operation) {
+void Replica::apply(string & result, const string & name, const string& operation, const bool fromFrontEnd) {
 	checkExists(name);
+	string result1;
+	boost::shared_ptr<std::vector<int32_t> > groupVector;
+	// if this command is from the front end, then you must pass this on to the other state machines
+	if(fromFrontEnd)
+	{
+	   // apply this to other state machines
+	   mutexMap[name]->lock();
+	   groupVector = groupMap[name];
+	   for(int i = 0; i < groupVector->size(); i++)
+	   {
+	      (*replicas)[(*groupVector)[i]].apply(result1, name, operation, false);
+	   }
+	   mutexMap[name]->lock();  
+	}
+	// if it's from another RM, then just apply this to yourself
+	mutexMap[name]->lock();
 	result = machines[name]->apply(operation);
+	mutexMap[name]->unlock();
 	cout << "Applying operation: " << operation << endl;
 }
 
@@ -93,16 +110,16 @@ void Replica::getState(string& result, const string &name) {
 
 void Replica::remove(const string &name) {
 	checkExists(name);
-
-	// TODO: LOCK!
+	mutexMap[name]->lock();
 	machines.erase(name);
-	//groups.erase(name);
+	groupMap.erase(name);
+	mutexMap[name]->unlock();
 	cout << "Removing machine: " << name << ". Now " << machines.size() << " here" << endl;
 }
 
 int32_t Replica::numMachines() {
 	int32_t result = machines.size();
-	cout << "Getting number of machines: " << result << " ~~~ " << id << endl;
+	cout << "Getting number of machines: " << result << endl;
 	return result;
 }
 

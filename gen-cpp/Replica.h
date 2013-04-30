@@ -16,7 +16,7 @@ class ReplicaIf {
  public:
   virtual ~ReplicaIf() {}
   virtual void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd) = 0;
-  virtual void apply(std::string& _return, const std::string& name, const std::string& operation) = 0;
+  virtual void apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd) = 0;
   virtual void getState(std::string& _return, const std::string& name) = 0;
   virtual void remove(const std::string& name) = 0;
   virtual int32_t numMachines() = 0;
@@ -55,7 +55,7 @@ class ReplicaNull : virtual public ReplicaIf {
   void create(const std::string& /* name */, const std::string& /* initialState */, const std::vector<int32_t> & /* RMs */, const bool /* fromFrontEnd */) {
     return;
   }
-  void apply(std::string& /* _return */, const std::string& /* name */, const std::string& /* operation */) {
+  void apply(std::string& /* _return */, const std::string& /* name */, const std::string& /* operation */, const bool /* fromFrontEnd */) {
     return;
   }
   void getState(std::string& /* _return */, const std::string& /* name */) {
@@ -216,21 +216,23 @@ class Replica_create_presult {
 };
 
 typedef struct _Replica_apply_args__isset {
-  _Replica_apply_args__isset() : name(false), operation(false) {}
+  _Replica_apply_args__isset() : name(false), operation(false), fromFrontEnd(false) {}
   bool name;
   bool operation;
+  bool fromFrontEnd;
 } _Replica_apply_args__isset;
 
 class Replica_apply_args {
  public:
 
-  Replica_apply_args() : name(), operation() {
+  Replica_apply_args() : name(), operation(), fromFrontEnd(0) {
   }
 
   virtual ~Replica_apply_args() throw() {}
 
   std::string name;
   std::string operation;
+  bool fromFrontEnd;
 
   _Replica_apply_args__isset __isset;
 
@@ -242,11 +244,17 @@ class Replica_apply_args {
     operation = val;
   }
 
+  void __set_fromFrontEnd(const bool val) {
+    fromFrontEnd = val;
+  }
+
   bool operator == (const Replica_apply_args & rhs) const
   {
     if (!(name == rhs.name))
       return false;
     if (!(operation == rhs.operation))
+      return false;
+    if (!(fromFrontEnd == rhs.fromFrontEnd))
       return false;
     return true;
   }
@@ -270,6 +278,7 @@ class Replica_apply_pargs {
 
   const std::string* name;
   const std::string* operation;
+  const bool* fromFrontEnd;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
@@ -958,8 +967,8 @@ class ReplicaClient : virtual public ReplicaIf {
   void create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd);
   void send_create(const std::string& name, const std::string& initialState, const std::vector<int32_t> & RMs, const bool fromFrontEnd);
   void recv_create();
-  void apply(std::string& _return, const std::string& name, const std::string& operation);
-  void send_apply(const std::string& name, const std::string& operation);
+  void apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd);
+  void send_apply(const std::string& name, const std::string& operation, const bool fromFrontEnd);
   void recv_apply(std::string& _return);
   void getState(std::string& _return, const std::string& name);
   void send_getState(const std::string& name);
@@ -1049,13 +1058,13 @@ class ReplicaMultiface : virtual public ReplicaIf {
     ifaces_[i]->create(name, initialState, RMs, fromFrontEnd);
   }
 
-  void apply(std::string& _return, const std::string& name, const std::string& operation) {
+  void apply(std::string& _return, const std::string& name, const std::string& operation, const bool fromFrontEnd) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->apply(_return, name, operation);
+      ifaces_[i]->apply(_return, name, operation, fromFrontEnd);
     }
-    ifaces_[i]->apply(_return, name, operation);
+    ifaces_[i]->apply(_return, name, operation, fromFrontEnd);
     return;
   }
 
