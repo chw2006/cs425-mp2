@@ -34,7 +34,7 @@ void Replica::create(const string & name, const string & initialState, const std
  	// see which RMs we need to pass this create message to
  	if(fromFrontEnd)
  	{
-    	for(int i = 1; i < RMs.size(); i++)
+    	for(uint i = 1; i < RMs.size(); i++)
     	{
     	   static int RM = RMs[i];
     	   // pass this message to the other RMs
@@ -43,7 +43,7 @@ void Replica::create(const string & name, const string & initialState, const std
    }
    // create the machine
    machines.insert(make_pair(name, factory.make(initialState)));
- 	cout << "Creating machine " << name << "on RM" << id << endl;
+   cout << "Creating machine " << name << " on RM #" << id << endl;
 }
 
 void Replica::apply(string & result, const string & name, const string& operation) {
